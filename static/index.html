@@ -683,53 +683,53 @@
     <div id="authSection">
         <div class="auth-container">
             <div class="auth-card">
-                <h2 id="authTitle">Wход</h2>
+                <h2 id="authTitle">Вход</h2>
                 <div class="info-box">
-                    <strong>Info:</strong> Role is linked to your account. Upon login, you will receive the appropriate rights.
+                    <strong>Информация:</strong> Роль привязана к аккаунту. При входе вы получите соответствующие права.
                 </div>
                 <form id="authForm" onsubmit="return false;">
                     <div class="form-group">
-                        <label>Login</label>
-                        <input type="text" id="loginUser" placeholder="Enter login" required>
+                        <label>Логин</label>
+                        <input type="text" id="loginUser" placeholder="Введите логин" required>
                     </div>
                     <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="loginPass" placeholder="Enter password" required>
+                        <label>Пароль</label>
+                        <input type="password" id="loginPass" placeholder="Введите пароль" required>
                     </div>
                     <div class="form-group hidden" id="nameGroup">
-                        <label>Full name</label>
-                        <input type="text" id="loginName" placeholder="Your full name">
+                        <label>Полное имя</label>
+                        <input type="text" id="loginName" placeholder="Ваше полное имя">
                     </div>
                     <div class="form-group hidden" id="roleGroup">
-                        <label>Role</label>
+                        <label>Роль</label>
                         <select id="loginRole">
-                            <option value="">Select role</option>
-                            <option value="chef">Chef</option>
-                            <option value="waiter">Waiter</option>
-                            <option value="admin">Administrator</option>
+                            <option value="">Выберите роль</option>
+                            <option value="chef">Повар</option>
+                            <option value="waiter">Официант</option>
+                            <option value="admin">Администратор</option>
                         </select>
                     </div>
-                    <button type="button" class="btn btn-primary" id="doLogin">Login</button>
+                    <button type="button" class="btn btn-primary" id="doLogin">Вход</button>
                 </form>
-                <button type="button" class="btn btn-link" id="toggleAuthBtn" onclick="toggleAuthMode()">Create account</button>
+                <button type="button" class="btn btn-link" id="toggleAuthBtn" onclick="toggleAuthMode()">Создать аккаунт</button>
             </div>
 
             <div class="test-credentials">
-                <h3>Test data</h3>
+                <h3>Тестовые данные</h3>
                 <div class="test-user">
-                    <h4>Chef</h4>
-                    <p>Login: <strong>chefNum1</strong></p>
-                    <p>Password: <strong>chef123</strong></p>
+                    <h4>Шеф-повар</h4>
+                    <p>Логин: <strong>chefNum1</strong></p>
+                    <p>Пароль: <strong>chef123</strong></p>
                 </div>
                 <div class="test-user">
-                    <h4>Waiter</h4>
-                    <p>Login: <strong>waiterNum1</strong></p>
-                    <p>Password: <strong>waiter123</strong></p>
+                    <h4>Официант</h4>
+                    <p>Логин: <strong>waiterNum1</strong></p>
+                    <p>Пароль: <strong>waiter123</strong></p>
                 </div>
                 <div class="test-user">
-                    <h4>Administrator</h4>
-                    <p>Login: <strong>adminNum1</strong></p>
-                    <p>Password: <strong>admin123</strong></p>
+                    <h4>Администратор</h4>
+                    <p>Логин: <strong>adminNum1</strong></p>
+                    <p>Пароль: <strong>admin123</strong></p>
                 </div>
             </div>
         </div>
@@ -741,72 +741,72 @@
             <h1>Platter Flow</h1>
             <div class="header-right">
                 <div id="accountInfo">
-                    <h3 id="userName">User</h3>
-                    <p id="userRole">Role</p>
+                    <h3 id="userName">Пользователь</h3>
+                    <p id="userRole">Роль</p>
                 </div>
-                <button id="logoutBtn">Logout</button>
+                <button id="logoutBtn">Выход</button>
             </div>
         </div>
         <div class="app-body">
             <div class="sidebar">
-                <button class="menu-btn active" data-tab="menuTab" id="menuBtn">Menu</button>
-                <button class="menu-btn hidden" id="ordersMenuBtn" data-tab="ordersTab">Orders</button>
-                <button class="menu-btn hidden" id="cartMenuBtn" data-tab="cartTab" style="position: relative;">My Order <span id="cartBadge" class="hidden">0</span></button>
-                <button class="menu-btn hidden" id="tablesStatusBtn" data-tab="tablesStatusTab">Tables Status</button>
-                <button class="menu-btn hidden" id="employeesMenuBtn" data-tab="employeesTab">Employees</button>
-                <button class="menu-btn hidden" id="tablesManageBtn" data-tab="tablesManageTab">Manage Tables</button>
-                <button class="menu-btn hidden" id="menuManageBtn" data-tab="menuManageTab">Manage Menu</button>
+                <button class="menu-btn active" data-tab="menuTab" id="menuBtn">Меню</button>
+                <button class="menu-btn hidden" id="ordersMenuBtn" data-tab="ordersTab">Заказы</button>
+                <button class="menu-btn hidden" id="cartMenuBtn" data-tab="cartTab" style="position: relative;">Мой заказ <span id="cartBadge" class="hidden">0</span></button>
+                <button class="menu-btn hidden" id="tablesStatusBtn" data-tab="tablesStatusTab">Статус столов</button>
+                <button class="menu-btn hidden" id="employeesMenuBtn" data-tab="employeesTab">Сотрудники</button>
+                <button class="menu-btn hidden" id="tablesManageBtn" data-tab="tablesManageTab">Управление столами</button>
+                <button class="menu-btn hidden" id="menuManageBtn" data-tab="menuManageTab">Управление меню</button>
             </div>
             <div class="main-content">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <h3>Total items</h3>
+                        <h3>Всего блюд</h3>
                         <div class="value" id="statOrders">0</div>
                     </div>
                     <div class="stat-card">
-                        <h3>Active</h3>
+                        <h3>Активные</h3>
                         <div class="value" id="statActive">0</div>
                     </div>
                     <div class="stat-card">
-                        <h3>Occupied tables</h3>
+                        <h3>Занятые столы</h3>
                         <div class="value" id="statTables">0</div>
                     </div>
                     <div class="stat-card hidden" id="statEmployeeCard">
-                        <h3>Employees</h3>
+                        <h3>Сотрудники</h3>
                         <div class="value" id="statEmployees">0</div>
                     </div>
                 </div>
                 <div class="tabpane" id="menuTab">
-                    <h2>Menu</h2>
+                    <h2>Меню</h2>
                     <div class="items-grid" id="menuContent"></div>
                 </div>
                 <div class="tabpane hidden" id="ordersTab">
-                    <h2>Orders</h2>
+                    <h2>Заказы</h2>
                     <div class="orders-list" id="ordersList"></div>
                 </div>
                 <div class="tabpane hidden" id="cartTab">
-                    <h2>My Order</h2>
+                    <h2>Мой заказ</h2>
                     <div id="cartContent"></div>
                 </div>
                 <div class="tabpane hidden" id="tablesStatusTab">
-                    <h2>Tables Status</h2>
+                    <h2>Статус столов</h2>
                     <div class="tables-grid" id="tablesStatusContent"></div>
                 </div>
                 <div class="tabpane hidden" id="employeesTab">
-                    <h2>Employees</h2>
+                    <h2>Сотрудники</h2>
                     <div class="employees-container">
                         <div class="employees-header">
-                            <h3 style="margin: 0;">Employee list</h3>
-                            <button class="btn btn-primary" style="width: auto; padding: 8px 16px; font-size: 14px;" onclick="addEmployeeModal()">Add New</button>
+                            <h3 style="margin: 0;">Список сотрудников</h3>
+                            <button class="btn btn-primary" style="width: auto; padding: 8px 16px; font-size: 14px;" onclick="addEmployeeModal()">Добавить новый</button>
                         </div>
                         <table class="employees-table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Login</th>
-                                    <th>Name</th>
-                                    <th>Role</th>
-                                    <th>Actions</th>
+                                    <th>Логин</th>
+                                    <th>Имя</th>
+                                    <th>Роль</th>
+                                    <th>Действия</th>
                                 </tr>
                             </thead>
                             <tbody id="employeesTableBody"></tbody>
@@ -814,16 +814,16 @@
                     </div>
                 </div>
                 <div class="tabpane hidden" id="tablesManageTab">
-                    <h2>Manage Tables</h2>
+                    <h2>Управление столами</h2>
                     <div style="margin-bottom: 20px;">
-                        <button class="btn btn-primary" style="width: auto; padding: 12px 24px;" onclick="openAddTableModal()">Add Table</button>
+                        <button class="btn btn-primary" style="width: auto; padding: 12px 24px;" onclick="openAddTableModal()">Добавить стол</button>
                     </div>
                     <div class="items-grid" id="tablesManageContent"></div>
                 </div>
                 <div class="tabpane hidden" id="menuManageTab">
-                    <h2>Manage Menu</h2>
+                    <h2>Управление меню</h2>
                     <div style="margin-bottom: 20px;">
-                        <button class="btn btn-primary" style="width: auto; padding: 12px 24px;" onclick="openAddMenuItemModal()">Add Dish</button>
+                        <button class="btn btn-primary" style="width: auto; padding: 12px 24px;" onclick="openAddMenuItemModal()">Добавить блюдо</button>
                     </div>
                     <div class="items-grid" id="menuManageContent"></div>
                 </div>
@@ -835,37 +835,37 @@
     <div id="employeeModal" class="modal hidden">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 id="modalTitle">Add employee</h3>
+                <h3 id="modalTitle">Добавить сотрудника</h3>
                 <button onclick="closeEmployeeModal()">X</button>
             </div>
             <div class="modal-body">
                 <form id="employeeForm">
                     <div class="form-group">
-                        <label>Login</label>
-                        <input type="text" id="empUsername" placeholder="Enter login" required>
+                        <label>Логин</label>
+                        <input type="text" id="empUsername" placeholder="Введите логин" required>
                     </div>
                     <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" id="empName" placeholder="Enter name" required>
+                        <label>Имя</label>
+                        <input type="text" id="empName" placeholder="Введите имя" required>
                     </div>
                     <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="empPassword" placeholder="Enter password" required>
+                        <label>Пароль</label>
+                        <input type="password" id="empPassword" placeholder="Введите пароль" required>
                     </div>
                     <div class="form-group">
-                        <label>Role</label>
+                        <label>Роль</label>
                         <select id="empRole" required>
-                            <option value="">Select role</option>
-                            <option value="chef">Chef</option>
-                            <option value="waiter">Waiter</option>
-                            <option value="admin">Administrator</option>
+                            <option value="">Выберите роль</option>
+                            <option value="chef">Повар</option>
+                            <option value="waiter">Официант</option>
+                            <option value="admin">Администратор</option>
                         </select>
                     </div>
                 </form>
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveEmployee()">Save</button>
+                <button class="btn btn-secondary" onclick="closeEmployeeModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="saveEmployee()">Сохранить</button>
             </div>
         </div>
     </div>
@@ -873,24 +873,24 @@
     <div id="addTableModal" class="modal hidden">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>Add new table</h3>
+                <h3>Добавить новый стол</h3>
                 <button onclick="closeAddTableModal()">X</button>
             </div>
             <div class="modal-body">
                 <form id="addTableForm">
                     <div class="form-group">
-                        <label>Table number</label>
+                        <label>Номер стола</label>
                         <input type="number" id="tableNumber" placeholder="1, 2, 3..." required>
                     </div>
                     <div class="form-group">
-                        <label>Number of seats</label>
+                        <label>Количество мест</label>
                         <input type="number" id="tableSeats" placeholder="2, 4, 6..." min="1" required>
                     </div>
                 </form>
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeAddTableModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveTable()">Add</button>
+                <button class="btn btn-secondary" onclick="closeAddTableModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="saveTable()">Добавить</button>
             </div>
         </div>
     </div>
@@ -898,38 +898,38 @@
     <div id="addMenuItemModal" class="modal hidden">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>Add new dish</h3>
+                <h3>Добавить новое блюдо</h3>
                 <button onclick="closeAddMenuItemModal()">X</button>
             </div>
             <div class="modal-body">
                 <form id="addMenuItemForm">
                     <div class="form-group">
-                        <label>Dish name</label>
-                        <input type="text" id="itemName" placeholder="Enter name" required>
+                        <label>Название блюда</label>
+                        <input type="text" id="itemName" placeholder="Введите название" required>
                     </div>
                     <div class="form-group">
-                        <label>Description</label>
-                        <input type="text" id="itemDescription" placeholder="Short description">
+                        <label>Описание</label>
+                        <input type="text" id="itemDescription" placeholder="Краткое описание">
                     </div>
                     <div class="form-group">
-                        <label>Price (Rubles)</label>
+                        <label>Цена (рубли)</label>
                         <input type="number" id="itemPrice" placeholder="100" step="0.01" required>
                     </div>
                     <div class="form-group">
-                        <label>Category</label>
+                        <label>Категория</label>
                         <select id="itemCategory" required>
-                            <option value="">Select category</option>
-                            <option value="Main">Main</option>
-                            <option value="Salads">Salads</option>
-                            <option value="Drinks">Drinks</option>
-                            <option value="Desserts">Desserts</option>
+                            <option value="">Выберите категорию</option>
+                            <option value="Main">Основные</option>
+                            <option value="Salads">Салаты</option>
+                            <option value="Drinks">Напитки</option>
+                            <option value="Desserts">Десерты</option>
                         </select>
                     </div>
                 </form>
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeAddMenuItemModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveMenuItem()">Add</button>
+                <button class="btn btn-secondary" onclick="closeAddMenuItemModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="saveMenuItem()">Добавить</button>
             </div>
         </div>
     </div>
@@ -937,18 +937,18 @@
     <div id="orderModal" class="modal hidden">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>Order details</h3>
+                <h3>Детали заказа</h3>
                 <button onclick="closeOrderModal()">X</button>
             </div>
             <div class="modal-body">
                 <div id="orderDetails"></div>
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeOrderModal()">Close</button>
+                <button class="btn btn-secondary" onclick="closeOrderModal()">Закрыть</button>
             </div>
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=2.6.0"></script>
+    <script src="/static/js/app.js?v=2.7.0"></script>
 </body>
 </html>
