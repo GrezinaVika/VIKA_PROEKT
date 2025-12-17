@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система управления Platter Flow</title>
+    <title>Platter Flow - Система управления рестораном</title>
     <style>
         * {
             margin: 0;
@@ -15,16 +15,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f5f5;
             color: #333;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .hidden {
-            display: none !important;
         }
 
         /* AUTH SECTION */
@@ -149,6 +139,23 @@
             box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
 
+        .btn-link {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0;
+            text-align: center;
+            width: 100%;
+            text-decoration: underline;
+            margin-top: 10px;
+        }
+
+        .btn-link:hover {
+            color: #5568d3;
+        }
+
         .btn-secondary {
             background: #eee;
             color: #333;
@@ -178,6 +185,10 @@
             font-size: 14px;
             line-height: 1.5;
             border-left: 4px solid #0288d1;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         /* APP SECTION */
@@ -545,11 +556,11 @@
     <div id="authSection">
         <div class="auth-container">
             <div class="auth-card">
-                <h2>🍽️ Platter Flow</h2>
+                <h2 id="authTitle">🔐 Вход</h2>
                 <div class="info-box">
-                    <strong>ℹ️ Важно:</strong> Роль привязана к вашему аккаунту. При входе под своим логином вы получите соответствующие права.
+                    <strong>ℹ️ Важно:</strong> Роль привязана к вашему аккаунту. При входе вы получите соответствующие права.
                 </div>
-                <form class="auth-form" id="loginForm">
+                <form id="authForm" onsubmit="return false;">
                     <div class="form-group">
                         <label>Логин</label>
                         <input type="text" id="loginUser" placeholder="Введите логин" required>
@@ -558,8 +569,21 @@
                         <label>Пароль</label>
                         <input type="password" id="loginPass" placeholder="Введите пароль" required>
                     </div>
+                    <div class="form-group hidden" id="nameGroup">
+                        <label>Полное имя</label>
+                        <input type="text" id="loginName" placeholder="Ваше полное имя">
+                    </div>
+                    <div class="form-group hidden" id="roleGroup">
+                        <label>Роль</label>
+                        <select id="loginRole">
+                            <option value="">Выберите роль</option>
+                            <option value="waiter">👔 Официант</option>
+                            <option value="admin">👨‍💼 Администратор</option>
+                        </select>
+                    </div>
                     <button type="button" class="btn btn-primary" id="doLogin">🔐 Вход</button>
                 </form>
+                <button type="button" class="btn btn-link" id="toggleAuthBtn" onclick="toggleAuthMode()">Создать аккаунт</button>
             </div>
 
             <div class="test-credentials">
@@ -677,15 +701,15 @@
                     </div>
                     <div class="form-group">
                         <label>Пароль</label>
-                        <input type="password" id="empPassword" placeholder="Введите пароль">
+                        <input type="password" id="empPassword" placeholder="Введите пароль" required>
                     </div>
                     <div class="form-group">
                         <label>Роль</label>
                         <select id="empRole" required>
                             <option value="">Выберите роль</option>
-                            <option value="waiter">Официант</option>
-                            <option value="chef">Повар</option>
-                            <option value="admin">Админ</option>
+                            <option value="waiter">👔 Официант</option>
+                            <option value="chef">👨‍🍳 Повар</option>
+                            <option value="admin">👨‍💼 Администратор</option>
                         </select>
                     </div>
                 </form>
@@ -712,6 +736,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=1.0.0"></script>
+    <script src="/static/js/app.js?v=1.1.0"></script>
 </body>
 </html>
