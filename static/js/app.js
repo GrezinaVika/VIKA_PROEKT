@@ -6,6 +6,7 @@ let currentTab = 'menuTab';
 let isLoginMode = true;
 let cart = [];
 let allMenuItems = [];
+let editingEmployeeId = null;
 
 // Elements
 const authSection = document.getElementById('authSection');
@@ -581,8 +582,8 @@ async function loadEmployees() {
                 <td><span class="role-badge ${emp.role}">${getRoleText(emp.role)}</span></td>
                 <td>
                     <div class="employee-actions">
-                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="alert('Функция в разработке')">✏️ Изменить</button>
-                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="alert('Функция в разработке')">🗑️ Удалить</button>
+                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="editEmployee(${emp.id}, '${emp.username}', '${emp.full_name}', '${emp.role}')">✏️ Изменить</button>
+                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteEmployee(${emp.id})">🗑️ Удалить</button>
                     </div>
                 </td>
             `;
@@ -602,15 +603,57 @@ function addEmployeeModal() {
         return;
     }
     
-    console.log('🔑 Открытие модального окна для сотрудника');
+    console.log('🔓 Открытие модального окна для сотрудника');
+    editingEmployeeId = null;
     document.getElementById('modalTitle').textContent = 'Добавить сотрудника';
     document.getElementById('employeeForm').reset();
+    document.getElementById('empPassword').parentElement.style.display = 'block';
     document.getElementById('employeeModal').classList.remove('hidden');
+}
+
+function editEmployee(id, username, fullName, role) {
+    console.log('✏️ Редактирование сотрудника:', id);
+    editingEmployeeId = id;
+    document.getElementById('modalTitle').textContent = 'Редактировать сотрудника';
+    document.getElementById('empUsername').value = username;
+    document.getElementById('empName').value = fullName;
+    document.getElementById('empRole').value = role;
+    document.getElementById('empPassword').value = '';
+    document.getElementById('empPassword').placeholder = 'Оставьте пустым, чтобы не менять пароль';
+    document.getElementById('empPassword').parentElement.style.display = 'block';
+    document.getElementById('employeeModal').classList.remove('hidden');
+}
+
+async function deleteEmployee(id) {
+    if (!confirm('⚠️ Вы уверены, что хотите удалить сотрудника?')) {
+        return;
+    }
+    
+    try {
+        console.log('🗑️ Удаление сотрудника:', id);
+        const response = await fetch(`${API_URL}/api/employees/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert('❌ Ошибка при удалении: ' + (errorData.detail || 'Неизвестная ошибка'));
+            return;
+        }
+
+        alert('✅ Сотрудник успешно удален');
+        loadEmployees();
+    } catch (error) {
+        console.error('Error deleting employee:', error);
+        alert('❌ Ошибка: ' + error.message);
+    }
 }
 
 function closeEmployeeModal() {
     console.log('❌ Закрытие модального окна');
     document.getElementById('employeeModal').classList.add('hidden');
+    editingEmployeeId = null;
 }
 
 function closeOrderModal() {
@@ -623,26 +666,48 @@ async function saveEmployee() {
     const password = document.getElementById('empPassword').value;
     const role = document.getElementById('empRole').value;
 
-    console.log('📋 Сохранение сотрудника:', { username, name, role });
+    console.log('📝 Сохранение сотрудника:', { username, name, role, isEdit: !!editingEmployeeId });
 
-    if (!username || !name || !password || !role) {
-        alert('❌ Пожалуйста, заполните все поля');
-        console.log('❌ Недостают поля:', { username: !username, name: !name, password: !password, role: !role });
+    if (!username || !name || !role) {
+        alert('❌ Пожалуйста, заполните все обязательные поля');
+        console.log('❌ Недостают поля:', { username: !username, name: !name, role: !role });
+        return;
+    }
+
+    if (!editingEmployeeId && !password) {
+        alert('❌ Пожалуйста, введите пароль');
         return;
     }
 
     try {
-        const employeeData = {
-            username: username,
-            full_name: name,
-            password: password,
-            role: role
-        };
+        let url = `${API_URL}/api/employees/`;
+        let method = 'POST';
+        let employeeData = {};
+
+        if (editingEmployeeId) {
+            // Редактирование
+            url = `${API_URL}/api/employees/${editingEmployeeId}`;
+            method = 'PUT';
+            employeeData = {
+                full_name: name,
+                password: password || undefined
+            };
+            // Удаляем undefined поля
+            Object.keys(employeeData).forEach(k => employeeData[k] === undefined && delete employeeData[k]);
+        } else {
+            // Создание
+            employeeData = {
+                username: username,
+                full_name: name,
+                password: password,
+                role: role
+            };
+        }
         
         console.log('📤 Отправка данных:', employeeData);
         
-        const response = await fetch(`${API_URL}/api/employees/`, {
-            method: 'POST',
+        const response = await fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(employeeData)
         });
@@ -652,14 +717,15 @@ async function saveEmployee() {
         if (!response.ok) {
             const errorData = await response.json();
             console.log('❌ Ошибка сервера:', errorData);
-            alert('❌ Ошибка при создании сотрудника: ' + (errorData.detail || 'Неизвестная ошибка'));
+            alert('❌ Ошибка: ' + (errorData.detail || 'Неизвестная ошибка'));
             return;
         }
 
         const employee = await response.json();
-        console.log('✅ Сотрудник создан:', employee);
+        console.log('✅ Сотрудник сохранен:', employee);
         
-        alert(`✅ Сотрудник "${employee.full_name}" (роль: ${getRoleText(employee.role)}) успешно создан!`);
+        const action = editingEmployeeId ? 'обновлен' : 'создан';
+        alert(`✅ Сотрудник "${employee.full_name}" (роль: ${getRoleText(employee.role)}) успешно ${action}!`);
         closeEmployeeModal();
         loadEmployees();
     } catch (error) {
