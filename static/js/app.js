@@ -5,6 +5,7 @@ let currentUser = null;
 let currentTab = 'menuTab';
 let isLoginMode = true; // true = вход, false = регистрация
 let cart = []; // Корзина со товарами
+let allMenuItems = []; // Все товары из меню
 
 // Elements
 const authSection = document.getElementById('authSection');
@@ -92,21 +93,44 @@ async function handleLogin() {
             document.getElementById('userName').textContent = data.full_name;
             document.getElementById('userRole').textContent = getRoleText(data.role);
 
-            // Show admin-only features
-            if (data.role === 'admin') {
-                document.getElementById('employeesMenuBtn').classList.remove('hidden');
-                document.getElementById('statEmployeeCard').classList.remove('hidden');
-            }
+            // Show/hide features based on role
+            const ordersBtn = document.querySelector('[data-tab="ordersTab"]').parentElement.querySelector('.menu-btn');
+            const cartBtn = document.getElementById('cartMenuBtn');
+            const employeesBtn = document.getElementById('employeesMenuBtn');
             
-            // Show cart for users
-            if (data.role === 'user') {
-                document.getElementById('cartMenuBtn').classList.remove('hidden');
+            if (data.role === 'admin') {
+                // Admin sees: Menu, Tables, Orders, Employees
+                document.querySelectorAll('[data-tab="ordersTab"]').forEach(el => {
+                    const btn = el.parentElement.querySelector('[data-tab="ordersTab"]');
+                    if (btn) btn.parentElement.classList.remove('hidden');
+                });
+                employeesBtn.classList.remove('hidden');
+                document.getElementById('statEmployeeCard').classList.remove('hidden');
+                cartBtn.classList.add('hidden');
+            } else if (data.role === 'waiter') {
+                // Waiter sees: Menu, Tables, Orders
+                document.querySelectorAll('[data-tab="ordersTab"]').forEach(el => {
+                    const btn = el.parentElement.querySelector('[data-tab="ordersTab"]');
+                    if (btn) btn.parentElement.classList.remove('hidden');
+                });
+                employeesBtn.classList.add('hidden');
+                cartBtn.classList.add('hidden');
+            } else if (data.role === 'user') {
+                // User sees: Menu, Tables, My Order (корзина)
+                const ordersMenuBtn = Array.from(document.querySelectorAll('.menu-btn')).find(btn => btn.getAttribute('data-tab') === 'ordersTab');
+                if (ordersMenuBtn) ordersMenuBtn.classList.add('hidden');
+                employeesBtn.classList.add('hidden');
+                cartBtn.classList.remove('hidden');
             }
 
             // Load initial data
             loadMenuItems();
             loadTables();
-            loadOrders();
+            
+            if (data.role !== 'user') {
+                loadOrders();
+            }
+            
             if (data.role === 'admin') {
                 loadEmployees();
             }
@@ -170,6 +194,11 @@ function handleTabSwitch(btn) {
     });
     document.getElementById(tabName).classList.remove('hidden');
     currentTab = tabName;
+    
+    // Загружаем корзину когда открыта
+    if (tabName === 'cartTab') {
+        loadCart();
+    }
 }
 
 // Menu items
@@ -177,6 +206,7 @@ async function loadMenuItems() {
     try {
         const response = await fetch(`${API_URL}/api/menu/`);
         const items = await response.json();
+        allMenuItems = items; // Сохраняем все товары
         
         const menuContent = document.getElementById('menuContent');
         menuContent.innerHTML = '';
@@ -189,15 +219,19 @@ async function loadMenuItems() {
         items.forEach(item => {
             const itemEl = document.createElement('div');
             itemEl.className = 'item';
-            itemEl.innerHTML = `
+            
+            let html = `
                 <div class="name">${item.name}</div>
                 <div class="desc">${item.description || 'Без описания'}</div>
                 <div class="meta">₽${item.price.toFixed(2)}</div>
                 <small style="color: #999; display: block; margin-bottom: 10px;">${item.category}</small>
-                ${currentUser && currentUser.role === 'user' ? `
-                    <button class="btn btn-primary" style="font-size: 12px; padding: 8px;" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}'m ${item.price})">🛒 В корзину</button>
-                ` : ''}
             `;
+            
+            if (currentUser && currentUser.role === 'user') {
+                html += `<button class="btn btn-primary" style="font-size: 12px; padding: 8px;" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}'m ${item.price})" data-item-id="${item.id}">🛒 Добавить</button>`;
+            }
+            
+            itemEl.innerHTML = html;
             menuContent.appendChild(itemEl);
         });
         
@@ -285,6 +319,14 @@ async function loadOrders() {
 
 // КОРЗИНА ТОВАРОВ
 function addToCart(itemId, itemName, itemPrice) {
+    // Находим товар в меню по ID
+    const menuItem = allMenuItems.find(item => item.id === itemId);
+    
+    if (!menuItem) {
+        console.error('Item not found:', itemId);
+        return;
+    }
+    
     const existingItem = cart.find(item => item.id === itemId);
     
     if (existingItem) {
@@ -292,13 +334,13 @@ function addToCart(itemId, itemName, itemPrice) {
     } else {
         cart.push({
             id: itemId,
-            name: itemName,
-            price: itemPrice,
+            name: menuItem.name,
+            price: menuItem.price,
             quantity: 1
         });
     }
     
-    alert(`✅ "${itemName}" добавлено в корзину!`);
+    alert(`✅ "${menuItem.name}" добавлено в мой заказ!`);
     updateCartBadge();
 }
 
@@ -321,8 +363,8 @@ function loadCart() {
     if (cart.length === 0) {
         cartContent.innerHTML = `
             <div style="text-align: center; padding: 40px; color: #999;">
-                <p>🛒 Корзина пуста</p>
-                <p>Добавьте товары из меню</p>
+                <p>🛒 Ваш заказ пуст</p>
+                <p>Добавьте блюда из меню</p>
             </div>
         `;
         return;
@@ -382,6 +424,8 @@ async function loadTablesForOrder() {
         const tables = await response.json();
         const select = document.getElementById('orderTableSelect');
         
+        if (!select) return;
+        
         tables.forEach(table => {
             if (!table.is_occupied) {
                 const option = document.createElement('option');
@@ -409,7 +453,7 @@ function changeQuantity(index, delta) {
 function removeFromCart(index) {
     const itemName = cart[index].name;
     cart.splice(index, 1);
-    alert(`"${itemName}" удален из корзины`);
+    alert(`"${itemName}" удален из заказа`);
     loadCart();
     updateCartBadge();
 }
@@ -424,13 +468,13 @@ async function createOrder() {
     }
     
     if (cart.length === 0) {
-        alert('Корзина пуста');
+        alert('Заказ пуст');
         return;
     }
     
     // Просто симулируем сохранение заказа
     // Когда будет backend - переслать данные на сервер
-    alert(`👋 Заказ сн стола #${tableId} составлен!\n\nВаш заказ принят официантом.`);
+    alert(`👋 Заказ со стола #${tableId} составлен!\n\nВаш заказ принят официантом.`);
     
     // Очистим корзину
     cart = [];
@@ -438,7 +482,6 @@ async function createOrder() {
     loadCart();
     
     // Обновим данные
-    loadOrders();
     loadTables();
 }
 
@@ -583,7 +626,7 @@ function getStatusText(status) {
 function getRoleText(role) {
     const roles = {
         'waiter': '👔 Официант',
-        'user': '👤 Пользователь', // Changed from chef to user
+        'user': '👤 Пользователь',
         'admin': '👨‍💼 Администратор'
     };
     return roles[role] || role;
@@ -591,7 +634,7 @@ function getRoleText(role) {
 
 // Auto-refresh data
 setInterval(() => {
-    if (currentUser) {
+    if (currentUser && currentUser.role !== 'user') {
         loadOrders();
         loadTables();
     }
