@@ -507,12 +507,12 @@
             font-weight: 600;
         }
 
-        .role-badge.waiter {
+        .role-badge.chef {
             background: #e3f2fd;
             color: #1976d2;
         }
 
-        .role-badge.user {
+        .role-badge.waiter {
             background: #e8f5e9;
             color: #388e3c;
         }
@@ -624,8 +624,8 @@
                         <label>Роль</label>
                         <select id="loginRole">
                             <option value="">Выберите роль</option>
+                            <option value="chef">👨‍🍳 Повар</option>
                             <option value="waiter">👔 Официант</option>
-                            <option value="user">👤 Пользователь</option>
                             <option value="admin">👨‍💼 Администратор</option>
                         </select>
                     </div>
@@ -637,19 +637,19 @@
             <div class="test-credentials">
                 <h3>📋 Тестовые данные</h3>
                 <div class="test-user">
+                    <h4>👨‍🍳 Повар</h4>
+                    <p>Логин: <strong>chefNum1</strong></p>
+                    <p>Пароль: <strong>chef123</strong></p>
+                </div>
+                <div class="test-user">
                     <h4>👔 Официант</h4>
-                    <p>Логин: <strong>ofikNum1</strong></p>
+                    <p>Логин: <strong>waiterNum1</strong></p>
                     <p>Пароль: <strong>waiter123</strong></p>
                 </div>
                 <div class="test-user">
                     <h4>👨‍💼 Администратор</h4>
                     <p>Логин: <strong>adminNum1</strong></p>
                     <p>Пароль: <strong>admin123</strong></p>
-                </div>
-                <div class="test-user">
-                    <h4>👤 Пользователь</h4>
-                    <p>Логин: <strong>userNum1</strong></p>
-                    <p>Пароль: <strong>user123</strong></p>
                 </div>
             </div>
         </div>
@@ -771,8 +771,8 @@
                         <label>Роль</label>
                         <select id="empRole" required>
                             <option value="">Выберите роль</option>
+                            <option value="chef">👨‍🍳 Повар</option>
                             <option value="waiter">👔 Официант</option>
-                            <option value="user">👤 Пользователь</option>
                             <option value="admin">👨‍💼 Администратор</option>
                         </select>
                     </div>
@@ -865,6 +865,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=2.4.0"></script>
+    <script src="/static/js/app.js?v=2.5.0"></script>
 </body>
 </html>
