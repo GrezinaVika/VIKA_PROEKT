@@ -36,7 +36,7 @@ def init_db():
             # Официант
             waiter = User(
                 username="ofikNum1",
-                password_hash=pwd_context.hash("123321"),
+                password_hash=pwd_context.hash("waiter123"),
                 full_name="Иван Петров",
                 role="waiter",
                 is_active=True
@@ -46,7 +46,7 @@ def init_db():
             # Повар
             chef = User(
                 username="povarNum1",
-                password_hash=pwd_context.hash("123321"),
+                password_hash=pwd_context.hash("chef123"),
                 full_name="Сергей Иванов",
                 role="chef",
                 is_active=True
@@ -56,7 +56,7 @@ def init_db():
             # Администратор
             admin = User(
                 username="adminNum1",
-                password_hash=pwd_context.hash("123321"),
+                password_hash=pwd_context.hash("admin123"),
                 full_name="Александр Иванович",
                 role="admin",
                 is_active=True
@@ -163,10 +163,10 @@ def init_db():
             print("✅ Столы созданы!")
         
         print("\n✨ Инициализация БД завершена успешно!")
-        print("\n📏 Тестовые данные:")
-        print("👤 Официант: ofikNum1 / 123321")
-        print("👨\u200d🍳 Повар: povarNum1 / 123321")
-        print("🧑\u200d💼 Администратор: adminNum1 / 123321")
+        print("\n📏 Новые данные для входа:")
+        print("👤 Официант: ofikNum1 / waiter123")
+        print("👨\u200d🍳 Повар: povarNum1 / chef123")
+        print("🧑\u200d💼 Администратор: adminNum1 / admin123")
         
     except Exception as e:
         print(f"❌ Ошибка при инициализации БД: {e}")
