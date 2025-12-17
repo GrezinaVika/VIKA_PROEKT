@@ -339,7 +339,7 @@ async function saveMenuItem() {
 }
 
 async function deleteMenuItem(itemId) {
-    if (!confirm('⚠️ Уверены?')) return;
+    if (!confirm('⚠️ Уверены? Это действие невозможно отменить.')) return;
     
     const id = parseInt(itemId, 10);
     
@@ -430,7 +430,6 @@ async function saveTable() {
         alert(`✅ Стол №${table.table_number} добавлен`);
         closeAddTableModal();
         loadTablesForManagement();
-        loadMenuItems();
     } catch (error) {
         console.error('Error saving table:', error);
         alert('❌ Ошибка: ' + error.message);
@@ -438,7 +437,7 @@ async function saveTable() {
 }
 
 async function deleteTable(tableId) {
-    if (!confirm('⚠️ Уверены?')) return;
+    if (!confirm('⚠️ Уверены? Это действие невозможно отменить.')) return;
     
     const id = parseInt(tableId, 10);
     
