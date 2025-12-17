@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Text, Boolean, DateTime, func
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
+from app.database.core import Base
 
 class MenuItem(Base):
     __tablename__ = "menu_items"
