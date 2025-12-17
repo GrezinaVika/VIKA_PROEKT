@@ -94,30 +94,23 @@ async function handleLogin() {
             document.getElementById('userRole').textContent = getRoleText(data.role);
 
             // Show/hide features based on role
-            const ordersBtn = document.querySelector('[data-tab="ordersTab"]').parentElement.querySelector('.menu-btn');
+            const ordersMenuBtn = Array.from(document.querySelectorAll('.menu-btn')).find(btn => btn.getAttribute('data-tab') === 'ordersTab');
             const cartBtn = document.getElementById('cartMenuBtn');
             const employeesBtn = document.getElementById('employeesMenuBtn');
             
             if (data.role === 'admin') {
                 // Admin sees: Menu, Tables, Orders, Employees
-                document.querySelectorAll('[data-tab="ordersTab"]').forEach(el => {
-                    const btn = el.parentElement.querySelector('[data-tab="ordersTab"]');
-                    if (btn) btn.parentElement.classList.remove('hidden');
-                });
+                if (ordersMenuBtn) ordersMenuBtn.classList.remove('hidden');
                 employeesBtn.classList.remove('hidden');
                 document.getElementById('statEmployeeCard').classList.remove('hidden');
                 cartBtn.classList.add('hidden');
             } else if (data.role === 'waiter') {
                 // Waiter sees: Menu, Tables, Orders
-                document.querySelectorAll('[data-tab="ordersTab"]').forEach(el => {
-                    const btn = el.parentElement.querySelector('[data-tab="ordersTab"]');
-                    if (btn) btn.parentElement.classList.remove('hidden');
-                });
+                if (ordersMenuBtn) ordersMenuBtn.classList.remove('hidden');
                 employeesBtn.classList.add('hidden');
                 cartBtn.classList.add('hidden');
             } else if (data.role === 'user') {
                 // User sees: Menu, Tables, My Order (корзина)
-                const ordersMenuBtn = Array.from(document.querySelectorAll('.menu-btn')).find(btn => btn.getAttribute('data-tab') === 'ordersTab');
                 if (ordersMenuBtn) ordersMenuBtn.classList.add('hidden');
                 employeesBtn.classList.add('hidden');
                 cartBtn.classList.remove('hidden');
@@ -228,7 +221,8 @@ async function loadMenuItems() {
             `;
             
             if (currentUser && currentUser.role === 'user') {
-                html += `<button class="btn btn-primary" style="font-size: 12px; padding: 8px;" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}'m ${item.price})" data-item-id="${item.id}">🛒 Добавить</button>`;
+                // Правильно генерируем onclick с параметрами
+                html += `<button class="btn btn-primary" style="font-size: 12px; padding: 8px;" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}'m ${item.price.toFixed(2)})">📋 Добавить в мой заказ</button>`;
             }
             
             itemEl.innerHTML = html;
@@ -319,11 +313,14 @@ async function loadOrders() {
 
 // КОРЗИНА ТОВАРОВ
 function addToCart(itemId, itemName, itemPrice) {
+    console.log('addToCart called with:', itemId, itemName, itemPrice);
+    
     // Находим товар в меню по ID
     const menuItem = allMenuItems.find(item => item.id === itemId);
     
     if (!menuItem) {
-        console.error('Item not found:', itemId);
+        console.error('Item not found in allMenuItems:', itemId);
+        alert('❌ Товар не найден');
         return;
     }
     
@@ -340,6 +337,7 @@ function addToCart(itemId, itemName, itemPrice) {
         });
     }
     
+    console.log('Cart updated:', cart);
     alert(`✅ "${menuItem.name}" добавлено в мой заказ!`);
     updateCartBadge();
 }
@@ -363,7 +361,7 @@ function loadCart() {
     if (cart.length === 0) {
         cartContent.innerHTML = `
             <div style="text-align: center; padding: 40px; color: #999;">
-                <p>🛒 Ваш заказ пуст</p>
+                <p>📝 Ваш заказ пуст</p>
                 <p>Добавьте блюда из меню</p>
             </div>
         `;
