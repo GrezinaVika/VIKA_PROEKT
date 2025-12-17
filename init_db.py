@@ -43,15 +43,15 @@ def init_db():
             )
             db.add(waiter)
             
-            # Повар
-            chef = User(
-                username="povarNum1",
-                password_hash=pwd_context.hash("chef123"),
-                full_name="Сергей Иванов",
-                role="chef",
+            # Пользователь (бывший Повар)
+            user = User(
+                username="userNum1",
+                password_hash=pwd_context.hash("user123"),
+                full_name="Алексей Сидоров",
+                role="user",
                 is_active=True
             )
-            db.add(chef)
+            db.add(user)
             
             # Администратор
             admin = User(
@@ -165,7 +165,7 @@ def init_db():
         print("\n✨ Инициализация БД завершена успешно!")
         print("\n📏 Новые данные для входа:")
         print("👤 Официант: ofikNum1 / waiter123")
-        print("👨\u200d🍳 Повар: povarNum1 / chef123")
+        print("👤 Пользователь: userNum1 / user123")
         print("🧑\u200d💼 Администратор: adminNum1 / admin123")
         
     except Exception as e:
