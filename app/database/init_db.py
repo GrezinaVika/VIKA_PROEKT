@@ -17,53 +17,53 @@ def init_db():
         # Check if users already exist
         existing_users = db.query(User).count()
         if existing_users > 0:
-            print("\u2705 Database already initialized with users")
+            print("[OK] Database already initialized with users")
             return
         
-        print("\ud83d\udd27 Initializing database...")
+        print("[INIT] Initializing database...")
         
         # Create test users
         users = [
             User(
                 username="chefNum1",
                 password_hash=pwd_context.hash("chef123"),
-                full_name="Иван Повар",
+                full_name="Ivan Chef",
                 role="chef"
             ),
             User(
                 username="waiterNum1",
                 password_hash=pwd_context.hash("waiter123"),
-                full_name="Петр Официант",
+                full_name="Petr Waiter",
                 role="waiter"
             ),
             User(
                 username="adminNum1",
                 password_hash=pwd_context.hash("admin123"),
-                full_name="Сергей Админ",
+                full_name="Sergey Admin",
                 role="admin"
             )
         ]
         
         db.add_all(users)
         db.commit()
-        print("\u2705 Test users created:")
-        print("   \ud83d\udc68\u200d\ud83c\udf73 Повар: chefNum1 / chef123")
-        print("   \ud83d\udc54 Официант: waiterNum1 / waiter123")
-        print("   \ud83d\udc68\u200d\ud83d\udcbc Админ: adminNum1 / admin123")
+        print("[OK] Test users created:")
+        print("     Chef: chefNum1 / chef123")
+        print("     Waiter: waiterNum1 / waiter123")
+        print("     Admin: adminNum1 / admin123")
         
         # Create test menu items
         menu_items = [
-            MenuItem(name="Борщ", description="Украинский борщ со сметаной", price=150.0, category="Блюда"),
-            MenuItem(name="Пельмени", description="Домашние пельмени с маслом", price=200.0, category="Блюда"),
-            MenuItem(name="Салат Цезарь", description="Классический салат с курицей", price=250.0, category="Салаты"),
-            MenuItem(name="Кофе", description="Эспрессо", price=80.0, category="Напитки"),
-            MenuItem(name="Пиво", description="Холодное пиво", price=120.0, category="Напитки"),
-            MenuItem(name="Тирамису", description="Итальянский десерт", price=180.0, category="Десерты"),
+            MenuItem(name="Borsch", description="Ukrainian soup", price=150.0, category="Main"),
+            MenuItem(name="Pelmeni", description="Russian dumplings", price=200.0, category="Main"),
+            MenuItem(name="Caesar Salad", description="Classic salad with chicken", price=250.0, category="Salads"),
+            MenuItem(name="Coffee", description="Espresso", price=80.0, category="Drinks"),
+            MenuItem(name="Beer", description="Cold beer", price=120.0, category="Drinks"),
+            MenuItem(name="Tiramisu", description="Italian dessert", price=180.0, category="Desserts"),
         ]
         
         db.add_all(menu_items)
         db.commit()
-        print("\u2705 Menu items created (6 items)")
+        print("[OK] Menu items created (6 items)")
         
         # Create test tables
         tables = [
@@ -77,12 +77,12 @@ def init_db():
         
         db.add_all(tables)
         db.commit()
-        print("\u2705 Restaurant tables created (6 tables)")
+        print("[OK] Restaurant tables created (6 tables)")
         
-        print("\n\ud83c\udf89 Database initialization complete!\n")
+        print("\n[SUCCESS] Database initialization complete!\n")
         
     except Exception as e:
-        print(f"\u274c Error during initialization: {e}")
+        print(f"[ERROR] Error during initialization: {e}")
         import traceback
         traceback.print_exc()
         db.rollback()
