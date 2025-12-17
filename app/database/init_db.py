@@ -1,7 +1,7 @@
 from app.database.core import SessionLocal, Base, engine
 from app.models.user import User
 from app.models.menu import MenuItem
-from app.models.table import Table
+from app.models.table import RestaurantTable
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -67,12 +67,12 @@ def init_db():
         
         # Create test tables
         tables = [
-            Table(table_number=1, seats=2),
-            Table(table_number=2, seats=2),
-            Table(table_number=3, seats=4),
-            Table(table_number=4, seats=4),
-            Table(table_number=5, seats=6),
-            Table(table_number=6, seats=6),
+            RestaurantTable(table_number=1, seats=2),
+            RestaurantTable(table_number=2, seats=2),
+            RestaurantTable(table_number=3, seats=4),
+            RestaurantTable(table_number=4, seats=4),
+            RestaurantTable(table_number=5, seats=6),
+            RestaurantTable(table_number=6, seats=6),
         ]
         
         db.add_all(tables)
