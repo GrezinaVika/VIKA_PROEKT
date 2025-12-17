@@ -4,6 +4,7 @@ const API_URL = window.location.origin; // Используем тот же до
 let currentUser = null;
 let currentTab = 'menuTab';
 let isLoginMode = true; // true = вход, false = регистрация
+let cart = []; // Корзина со товарами
 
 // Elements
 const authSection = document.getElementById('authSection');
@@ -81,6 +82,7 @@ async function handleLogin() {
 
             const data = await response.json();
             currentUser = data;
+            cart = []; // Очистим корзину при входе
 
             // Show app section, hide auth
             authSection.classList.add('hidden');
@@ -94,6 +96,11 @@ async function handleLogin() {
             if (data.role === 'admin') {
                 document.getElementById('employeesMenuBtn').classList.remove('hidden');
                 document.getElementById('statEmployeeCard').classList.remove('hidden');
+            }
+            
+            // Show cart for users
+            if (data.role === 'user') {
+                document.getElementById('cartMenuBtn').classList.remove('hidden');
             }
 
             // Load initial data
@@ -143,6 +150,7 @@ async function handleLogin() {
 
 function handleLogout() {
     currentUser = null;
+    cart = [];
     authSection.classList.remove('hidden');
     appSection.classList.add('hidden');
     document.getElementById('authForm').reset();
@@ -185,7 +193,10 @@ async function loadMenuItems() {
                 <div class="name">${item.name}</div>
                 <div class="desc">${item.description || 'Без описания'}</div>
                 <div class="meta">₽${item.price.toFixed(2)}</div>
-                <small style="color: #999;">${item.category}</small>
+                <small style="color: #999; display: block; margin-bottom: 10px;">${item.category}</small>
+                ${currentUser && currentUser.role === 'user' ? `
+                    <button class="btn btn-primary" style="font-size: 12px; padding: 8px;" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}'m ${item.price})">🛒 В корзину</button>
+                ` : ''}
             `;
             menuContent.appendChild(itemEl);
         });
@@ -270,6 +281,165 @@ async function loadOrders() {
     } catch (error) {
         console.error('Error loading orders:', error);
     }
+}
+
+// КОРЗИНА ТОВАРОВ
+function addToCart(itemId, itemName, itemPrice) {
+    const existingItem = cart.find(item => item.id === itemId);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            id: itemId,
+            name: itemName,
+            price: itemPrice,
+            quantity: 1
+        });
+    }
+    
+    alert(`✅ "${itemName}" добавлено в корзину!`);
+    updateCartBadge();
+}
+
+function updateCartBadge() {
+    const badge = document.getElementById('cartBadge');
+    if (badge) {
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        badge.textContent = count;
+        if (count === 0) {
+            badge.classList.add('hidden');
+        } else {
+            badge.classList.remove('hidden');
+        }
+    }
+}
+
+function loadCart() {
+    const cartContent = document.getElementById('cartContent');
+    
+    if (cart.length === 0) {
+        cartContent.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #999;">
+                <p>🛒 Корзина пуста</p>
+                <p>Добавьте товары из меню</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let total = 0;
+    let html = '<div class="cart-items">';
+    
+    cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        
+        html += `
+            <div class="cart-item">
+                <div style="flex: 1;">
+                    <strong>${item.name}</strong>
+                    <p style="margin: 5px 0; color: #666; font-size: 14px;">
+                        ₽${item.price} x ${item.quantity} = ₽${itemTotal.toFixed(2)}
+                    </p>
+                </div>
+                <div style="display: flex; gap: 5px; align-items: center;">
+                    <button class="btn btn-secondary" style="width: 30px; height: 30px; padding: 0;" onclick="changeQuantity(${index}, -1)">-</button>
+                    <span style="min-width: 20px; text-align: center;">${item.quantity}</span>
+                    <button class="btn btn-secondary" style="width: 30px; height: 30px; padding: 0;" onclick="changeQuantity(${index}, 1)">+</button>
+                    <button class="btn btn-danger" style="width: 40px; height: 30px; padding: 0; margin-left: 10px;" onclick="removeFromCart(${index})">x</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `</div>`;
+    html += `
+        <div style="margin-top: 20px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+                <span>Итого:</span>
+                <span>₽${total.toFixed(2)}</span>
+            </div>
+            <div class="form-group">
+                <label>Выберите стол</label>
+                <select id="orderTableSelect">
+                    <option value="">Выберите стол</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="createOrder()">📋 Оформить заказ</button>
+        </div>
+    `;
+    
+    cartContent.innerHTML = html;
+    
+    // Заполним выбор столов
+    loadTablesForOrder();
+}
+
+async function loadTablesForOrder() {
+    try {
+        const response = await fetch(`${API_URL}/api/tables/`);
+        const tables = await response.json();
+        const select = document.getElementById('orderTableSelect');
+        
+        tables.forEach(table => {
+            if (!table.is_occupied) {
+                const option = document.createElement('option');
+                option.value = table.id;
+                option.textContent = `Стол №${table.table_number} (${table.seats} мест)`;
+                select.appendChild(option);
+            }
+        });
+    } catch (error) {
+        console.error('Error loading tables for order:', error);
+    }
+}
+
+function changeQuantity(index, delta) {
+    cart[index].quantity += delta;
+    
+    if (cart[index].quantity <= 0) {
+        removeFromCart(index);
+    } else {
+        loadCart();
+        updateCartBadge();
+    }
+}
+
+function removeFromCart(index) {
+    const itemName = cart[index].name;
+    cart.splice(index, 1);
+    alert(`"${itemName}" удален из корзины`);
+    loadCart();
+    updateCartBadge();
+}
+
+async function createOrder() {
+    const tableSelect = document.getElementById('orderTableSelect');
+    const tableId = tableSelect.value;
+    
+    if (!tableId) {
+        alert('Пожалуйста, выберите стол');
+        return;
+    }
+    
+    if (cart.length === 0) {
+        alert('Корзина пуста');
+        return;
+    }
+    
+    // Просто симулируем сохранение заказа
+    // Когда будет backend - переслать данные на сервер
+    alert(`👋 Заказ сн стола #${tableId} составлен!\n\nВаш заказ принят официантом.`);
+    
+    // Очистим корзину
+    cart = [];
+    updateCartBadge();
+    loadCart();
+    
+    // Обновим данные
+    loadOrders();
+    loadTables();
 }
 
 // Employees
