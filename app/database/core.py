@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from app.config import settings
 
 # Используем DATABASE_URL из конфига
@@ -11,6 +11,9 @@ engine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Создаём базовый класс для всех моделей
+Base = declarative_base()
 
 def get_db():
     db = SessionLocal()
