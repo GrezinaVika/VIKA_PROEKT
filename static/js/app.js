@@ -413,7 +413,7 @@ function getStatusText(status) {
 function getRoleText(role) {
     const roles = {
         'waiter': '👔 Официант',
-        'chef': '👨‍🍳 Повар',
+        'user': '👤 Пользователь', // Changed from chef to user
         'admin': '👨‍💼 Администратор'
     };
     return roles[role] || role;
