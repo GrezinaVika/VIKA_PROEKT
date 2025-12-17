@@ -37,7 +37,7 @@ function toggleAuthMode() {
         submitBtn.textContent = '🔐 Вход';
         document.getElementById('loginUser').placeholder = 'Введите логин';
     } else {
-        title.textContent = '📝 Регистрация';
+        title.textContent = '📏 Регистрация';
         roleGroup.classList.remove('hidden');
         toggleBtn.textContent = 'Уже есть аккаунт? Войти';
         submitBtn.textContent = '✅ Зарегистрироваться';
@@ -81,38 +81,44 @@ async function handleLogin() {
             document.getElementById('userName').textContent = data.full_name;
             document.getElementById('userRole').textContent = getRoleText(data.role);
 
-            const ordersMenuBtn = Array.from(document.querySelectorAll('.menu-btn')).find(btn => btn.getAttribute('data-tab') === 'ordersTab');
-            const tablesMenuBtn = Array.from(document.querySelectorAll('.menu-btn')).find(btn => btn.getAttribute('data-tab') === 'tablesManageTab');
-            const menuManageBtn = Array.from(document.querySelectorAll('.menu-btn')).find(btn => btn.getAttribute('data-tab') === 'menuManageTab');
+            const menuBtn = document.getElementById('menuBtn');
+            const ordersMenuBtn = document.getElementById('ordersMenuBtn');
             const cartBtn = document.getElementById('cartMenuBtn');
             const employeesBtn = document.getElementById('employeesMenuBtn');
+            const tablesManageBtn = document.getElementById('tablesManageBtn');
+            const menuManageBtn = document.getElementById('menuManageBtn');
             
             if (data.role === 'admin') {
-                // Админ: Меню, Сотрудники, Управление столами, Управление меню
-                if (ordersMenuBtn) ordersMenuBtn.classList.add('hidden');
-                if (tablesMenuBtn) tablesMenuBtn.classList.remove('hidden');
-                if (menuManageBtn) menuManageBtn.classList.remove('hidden');
+                // Админ: ТОЛЬКО сотрудники, правление столами, правление меню
+                menuBtn.classList.add('hidden');
+                ordersMenuBtn.classList.add('hidden');
+                cartBtn.classList.add('hidden');
                 employeesBtn.classList.remove('hidden');
+                tablesManageBtn.classList.remove('hidden');
+                menuManageBtn.classList.remove('hidden');
                 document.getElementById('statEmployeeCard').classList.remove('hidden');
-                cartBtn.classList.add('hidden');
+                
+                // Открыть первую доступную вкладку
+                handleTabSwitch(employeesBtn);
             } else if (data.role === 'waiter') {
-                // Официант: Меню, Столы, Заказы
-                if (ordersMenuBtn) ordersMenuBtn.classList.remove('hidden');
-                if (tablesMenuBtn) tablesMenuBtn.classList.add('hidden');
-                if (menuManageBtn) menuManageBtn.classList.add('hidden');
-                employeesBtn.classList.add('hidden');
+                // Официант: Меню, Заказы
+                menuBtn.classList.remove('hidden');
+                ordersMenuBtn.classList.remove('hidden');
                 cartBtn.classList.add('hidden');
-            } else if (data.role === 'user') {
-                // Пользователь: Меню, Столы, Мой заказ
-                if (ordersMenuBtn) ordersMenuBtn.classList.add('hidden');
-                if (tablesMenuBtn) tablesMenuBtn.classList.add('hidden');
-                if (menuManageBtn) menuManageBtn.classList.add('hidden');
                 employeesBtn.classList.add('hidden');
+                tablesManageBtn.classList.add('hidden');
+                menuManageBtn.classList.add('hidden');
+            } else if (data.role === 'user') {
+                // Пользователь: Меню, Мой заказ
+                menuBtn.classList.remove('hidden');
+                ordersMenuBtn.classList.add('hidden');
                 cartBtn.classList.remove('hidden');
+                employeesBtn.classList.add('hidden');
+                tablesManageBtn.classList.add('hidden');
+                menuManageBtn.classList.add('hidden');
             }
 
             loadMenuItems();
-            loadTables();
             
             if (data.role === 'waiter') {
                 loadOrders();
@@ -261,7 +267,7 @@ function addToCartById(itemId) {
     alert(`✅ "${menuItem.name}" добавлено в мой заказ!`);
 }
 
-// ADMIN: Управление МЕНЮ
+// ADMIN: Управление МЕНУ
 async function loadMenuForManagement() {
     try {
         const response = await fetch(`${API_URL}/api/menu/`);
@@ -426,7 +432,6 @@ async function saveTable() {
         alert(`✅ Стол №${table.table_number} добавлен`);
         closeAddTableModal();
         loadTablesForManagement();
-        loadTables();
     } catch (error) {
         console.error('Error saving table:', error);
         alert('❌ Ошибка: ' + error.message);
@@ -441,158 +446,246 @@ async function deleteTable(tableId) {
             method: 'DELETE'
         });
 
-        if (!response.ok) throw new Error('Ошибка удаления');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Ошибка удаления');
+        }
         
         alert('✅ Стол удален');
         loadTablesForManagement();
-        loadTables();
     } catch (error) {
         console.error('Error deleting table:', error);
         alert('❌ Ошибка: ' + error.message);
     }
 }
 
-// Tables
-async function loadTables() {
+// Employees
+async function loadEmployees() {
     try {
-        const response = await fetch(`${API_URL}/api/tables/`);
-        const tables = await response.json();
+        console.log('🔄 Загружка сотрудников...');
+        const response = await fetch(`${API_URL}/api/employees/`);
         
-        const tablesGrid = document.getElementById('tablesGrid');
-        tablesGrid.innerHTML = '';
+        if (!response.ok) {
+            throw new Error(`Ошибка загружки сотрудников: ${response.status}`);
+        }
         
-        if (tables.length === 0) {
-            tablesGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999;">Нет столов</p>';
+        const employees = await response.json();
+        console.log('✅ Сотрудники загружены:', employees);
+        
+        const tableBody = document.getElementById('employeesTableBody');
+        tableBody.innerHTML = '';
+        
+        if (employees.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Нет сотрудников</td></tr>';
             return;
         }
         
-        let occupied = 0;
-        tables.forEach(table => {
-            if (table.is_occupied) occupied++;
-            
-            const tableEl = document.createElement('div');
-            tableEl.className = 'item';
-            tableEl.style.borderTop = table.is_occupied ? '4px solid #e74c3c' : '4px solid #2ecc71';
-            tableEl.innerHTML = `
-                <div class="name">Стол №${table.table_number}</div>
-                <div class="desc">Мест: ${table.seats}</div>
-                <div class="meta" style="color: ${table.is_occupied ? '#e74c3c' : '#2ecc71'};">
-                    ${table.is_occupied ? '🔴 Занят' : '🟢 Свободен'}
+        employees.forEach(emp => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${emp.id}</td>
+                <td>${emp.username}</td>
+                <td>${emp.full_name}</td>
+                <td><span class="role-badge ${emp.role}">${getRoleText(emp.role)}</span></td>
+                <td>
+                    <div class="employee-actions">
+                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="editEmployee(${emp.id}, '${emp.username}', '${emp.full_name}', '${emp.role}')">✏️ Изменить</button>
+                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteEmployee(${emp.id})">🗑️ Удалить</button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+        
+        document.getElementById('statEmployees').textContent = employees.length;
+    } catch (error) {
+        console.error('Error loading employees:', error);
+        alert('❌ Ошибка при загружке сотрудников: ' + error.message);
+    }
+}
+
+function addEmployeeModal() {
+    if (!currentUser || currentUser.role !== 'admin') {
+        alert('❌ Только администраторы могут добавлять сотрудников');
+        return;
+    }
+    
+    console.log('🔓 Открытие модального окна для сотрудника');
+    editingEmployeeId = null;
+    document.getElementById('modalTitle').textContent = 'Добавить сотрудника';
+    document.getElementById('employeeForm').reset();
+    document.getElementById('empPassword').parentElement.style.display = 'block';
+    document.getElementById('employeeModal').classList.remove('hidden');
+}
+
+function editEmployee(id, username, fullName, role) {
+    console.log('✏️ Редактирование сотрудника:', id);
+    editingEmployeeId = id;
+    document.getElementById('modalTitle').textContent = 'Редактировать сотрудника';
+    document.getElementById('empUsername').value = username;
+    document.getElementById('empName').value = fullName;
+    document.getElementById('empRole').value = role;
+    document.getElementById('empPassword').value = '';
+    document.getElementById('empPassword').placeholder = 'Оставьте пустым, чтобы не менять пароль';
+    document.getElementById('empPassword').parentElement.style.display = 'block';
+    document.getElementById('employeeModal').classList.remove('hidden');
+}
+
+async function deleteEmployee(id) {
+    if (!confirm('⚠️ Вы уверены, что хотите удалить сотрудника?')) {
+        return;
+    }
+    
+    try {
+        console.log('🗑️ Удаление сотрудника:', id);
+        const response = await fetch(`${API_URL}/api/employees/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert('❌ Ошибка при удалении: ' + (errorData.detail || 'Неизвестная ошибка'));
+            return;
+        }
+
+        alert('✅ Сотрудник успешно удален');
+        loadEmployees();
+    } catch (error) {
+        console.error('Error deleting employee:', error);
+        alert('❌ Ошибка: ' + error.message);
+    }
+}
+
+function closeEmployeeModal() {
+    console.log('❌ Закрытие модального окна');
+    document.getElementById('employeeModal').classList.add('hidden');
+    editingEmployeeId = null;
+}
+
+function closeOrderModal() {
+    document.getElementById('orderModal').classList.add('hidden');
+}
+
+async function saveEmployee() {
+    const username = document.getElementById('empUsername').value;
+    const name = document.getElementById('empName').value;
+    const password = document.getElementById('empPassword').value;
+    const role = document.getElementById('empRole').value;
+
+    console.log('📏 Сохранение сотрудника:', { username, name, role, isEdit: !!editingEmployeeId });
+
+    if (!username || !name || !role) {
+        alert('❌ Пожалуйста, заполните все обязательные поля');
+        console.log('❌ Недостают поля:', { username: !username, name: !name, role: !role });
+        return;
+    }
+
+    if (!editingEmployeeId && !password) {
+        alert('❌ Пожалуйста, введите пароль');
+        return;
+    }
+
+    try {
+        let url = `${API_URL}/api/employees/`;
+        let method = 'POST';
+        let employeeData = {};
+
+        if (editingEmployeeId) {
+            url = `${API_URL}/api/employees/${editingEmployeeId}`;
+            method = 'PUT';
+            employeeData = {
+                full_name: name,
+                password: password || undefined
+            };
+            Object.keys(employeeData).forEach(k => employeeData[k] === undefined && delete employeeData[k]);
+        } else {
+            employeeData = {
+                username: username,
+                full_name: name,
+                password: password,
+                role: role
+            };
+        }
+        
+        console.log('📤 Отправка данных:', employeeData);
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(employeeData)
+        });
+
+        console.log('📥 Ответ сервера:', response.status);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.log('❌ Ошибка сервера:', errorData);
+            alert('❌ Ошибка: ' + (errorData.detail || 'Неизвестная ошибка'));
+            return;
+        }
+
+        const employee = await response.json();
+        console.log('✅ Сотрудник сохранен:', employee);
+        
+        const action = editingEmployeeId ? 'обновлен' : 'создан';
+        alert(`✅ Сотрудник "${employee.full_name}" (роль: ${getRoleText(employee.role)}) успешно ${action}!`);
+        closeEmployeeModal();
+        loadEmployees();
+    } catch (error) {
+        console.error('Error saving employee:', error);
+        alert('❌ Ошибка при сохранении: ' + error.message);
+    }
+}
+
+function showOrderDetails(order) {
+    let itemsHtml = '<div style="margin-top: 10px;">';
+    if (order.items && order.items.length > 0) {
+        order.items.forEach(item => {
+            itemsHtml += `
+                <div style="padding: 8px; background: #f9f9f9; margin-bottom: 8px; border-radius: 4px;">
+                    <strong>${item.name || 'Товар'}</strong><br>
+                    Кол-во: ${item.quantity} × ₽${item.price.toFixed(2)}
                 </div>
             `;
-            
-            if (currentUser && (currentUser.role === 'waiter' || currentUser.role === 'admin')) {
-                const toggleBtn = document.createElement('button');
-                toggleBtn.className = 'btn ' + (table.is_occupied ? 'btn-secondary' : 'btn-danger');
-                toggleBtn.style.cssText = 'width: 100%; font-size: 12px; padding: 8px; margin-top: 10px;';
-                toggleBtn.textContent = table.is_occupied ? '✅ Освободить' : '🔴 Занять';
-                toggleBtn.onclick = () => toggleTableStatus(table.id, !table.is_occupied);
-                tableEl.appendChild(toggleBtn);
-            }
-            
-            tablesGrid.appendChild(tableEl);
         });
-        
-        document.getElementById('statTables').textContent = occupied;
-    } catch (error) {
-        console.error('Error loading tables:', error);
+    } else {
+        itemsHtml += '<p style="color: #999;">Нет товаров в заказе</p>';
     }
+    itemsHtml += '</div>';
+
+    document.getElementById('orderDetails').innerHTML = `
+        <div style="margin-bottom: 15px;">
+            <h4>Заказ #${order.id}</h4>
+            <p><strong>Стол:</strong> №${order.table_id}</p>
+            <p><strong>Статус:</strong> ${getStatusText(order.status)}</p>
+            <p><strong>Сумма:</strong> ₽${order.total_price.toFixed(2)}</p>
+        </div>
+        <h4>Товары:</h4>
+        ${itemsHtml}
+    `;
+    
+    document.getElementById('orderModal').classList.remove('hidden');
 }
 
-async function toggleTableStatus(tableId, isOccupied) {
-    try {
-        const response = await fetch(`${API_URL}/api/tables/${tableId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ is_occupied: isOccupied })
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при изменении статуса стола');
-        }
-
-        alert('✅ Статус стола изменён');
-        loadTables();
-    } catch (error) {
-        console.error('Error toggling table status:', error);
-        alert('❌ Ошибка: ' + error.message);
-    }
+function getStatusText(status) {
+    const statuses = {
+        'pending': '⏳ Ожидание',
+        'confirmed': '✅ Подтвержден',
+        'ready': '🟢 Готово',
+        'completed': '✔️ Завершен',
+        'cancelled': '❌ Отменен'
+    };
+    return statuses[status] || status;
 }
 
-// Orders
-async function loadOrders() {
-    try {
-        const response = await fetch(`${API_URL}/api/orders/`);
-        const orders = await response.json();
-        
-        const ordersList = document.getElementById('ordersList');
-        ordersList.innerHTML = '';
-        
-        if (orders.length === 0) {
-            ordersList.innerHTML = '<p style="text-align: center; color: #999;">Нет заказов</p>';
-            return;
-        }
-        
-        let active = 0;
-        orders.forEach(order => {
-            if (order.status === 'pending' || order.status === 'confirmed' || order.status === 'ready') {
-                active++;
-            }
-            
-            const orderEl = document.createElement('div');
-            orderEl.className = 'order';
-            
-            let html = `
-                <div class="name">Заказ #${order.id} - Стол №${order.table_id}</div>
-                <div class="meta">Статус: <strong>${getStatusText(order.status)}</strong></div>
-                <div class="meta">Сумма: ₽${order.total_price.toFixed(2)}</div>
-            `;
-            
-            if (currentUser && (currentUser.role === 'waiter' || currentUser.role === 'admin')) {
-                if (order.status === 'pending' || order.status === 'confirmed') {
-                    html += `
-                        <button 
-                            class="btn btn-primary" 
-                            style="width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;"
-                            onclick="markOrderReady(${order.id})"
-                        >
-                            🟢 Заказ готов
-                        </button>
-                    `;
-                }
-            }
-            
-            orderEl.innerHTML = html;
-            orderEl.style.cursor = 'pointer';
-            orderEl.addEventListener('click', () => showOrderDetails(order));
-            ordersList.appendChild(orderEl);
-        });
-        
-        document.getElementById('statActive').textContent = active;
-        document.getElementById('statOrders').textContent = orders.length;
-    } catch (error) {
-        console.error('Error loading orders:', error);
-    }
-}
-
-async function markOrderReady(orderId) {
-    try {
-        const response = await fetch(`${API_URL}/api/orders/${orderId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: 'ready' })
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при обновлении статуса заказа');
-        }
-
-        alert('✅ Заказ отмечен как готовый!');
-        loadOrders();
-    } catch (error) {
-        console.error('Error marking order ready:', error);
-        alert('❌ Ошибка: ' + error.message);
-    }
+function getRoleText(role) {
+    const roles = {
+        'waiter': '👔 Официант',
+        'user': '👤 Пользователь',
+        'admin': '👨‍💼 Администратор'
+    };
+    return roles[role] || role;
 }
 
 // CART
@@ -615,7 +708,7 @@ function loadCart() {
     if (cart.length === 0) {
         cartContent.innerHTML = `
             <div style="text-align: center; padding: 40px; color: #999;">
-                <p>📝 Ваш заказ пуст</p>
+                <p>📏 Ваш заказ пуст</p>
                 <p>Добавьте блюда из меню</p>
             </div>
         `;
@@ -751,246 +844,91 @@ async function createOrder() {
         cart = [];
         updateCartBadge();
         loadCart();
-        loadTables();
     } catch (error) {
         console.error('Error creating order:', error);
         alert('❌ Ошибка: ' + error.message);
     }
 }
 
-// Employees
-async function loadEmployees() {
+// Orders
+async function loadOrders() {
     try {
-        console.log('🔄 Загрузка сотрудников...');
-        const response = await fetch(`${API_URL}/api/employees/`);
+        const response = await fetch(`${API_URL}/api/orders/`);
+        const orders = await response.json();
         
-        if (!response.ok) {
-            throw new Error(`Ошибка загружки сотрудников: ${response.status}`);
-        }
+        const ordersList = document.getElementById('ordersList');
+        ordersList.innerHTML = '';
         
-        const employees = await response.json();
-        console.log('✅ Сотрудники загружены:', employees);
-        
-        const tableBody = document.getElementById('employeesTableBody');
-        tableBody.innerHTML = '';
-        
-        if (employees.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Нет сотрудников</td></tr>';
+        if (orders.length === 0) {
+            ordersList.innerHTML = '<p style="text-align: center; color: #999;">Нет заказов</p>';
             return;
         }
         
-        employees.forEach(emp => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${emp.id}</td>
-                <td>${emp.username}</td>
-                <td>${emp.full_name}</td>
-                <td><span class="role-badge ${emp.role}">${getRoleText(emp.role)}</span></td>
-                <td>
-                    <div class="employee-actions">
-                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="editEmployee(${emp.id}, '${emp.username}', '${emp.full_name}', '${emp.role}')">✏️ Изменить</button>
-                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteEmployee(${emp.id})">🗑️ Удалить</button>
-                    </div>
-                </td>
+        let active = 0;
+        orders.forEach(order => {
+            if (order.status === 'pending' || order.status === 'confirmed' || order.status === 'ready') {
+                active++;
+            }
+            
+            const orderEl = document.createElement('div');
+            orderEl.className = 'order';
+            
+            let html = `
+                <div class="name">Заказ #${order.id} - Стол №${order.table_id}</div>
+                <div class="meta">Статус: <strong>${getStatusText(order.status)}</strong></div>
+                <div class="meta">Сумма: ₽${order.total_price.toFixed(2)}</div>
             `;
-            tableBody.appendChild(row);
+            
+            if (currentUser && (currentUser.role === 'waiter' || currentUser.role === 'admin')) {
+                if (order.status === 'pending' || order.status === 'confirmed') {
+                    html += `
+                        <button 
+                            class="btn btn-primary" 
+                            style="width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;"
+                            onclick="markOrderReady(${order.id})"
+                        >
+                            🟢 Заказ готов
+                        </button>
+                    `;
+                }
+            }
+            
+            orderEl.innerHTML = html;
+            orderEl.style.cursor = 'pointer';
+            orderEl.addEventListener('click', () => showOrderDetails(order));
+            ordersList.appendChild(orderEl);
         });
         
-        document.getElementById('statEmployees').textContent = employees.length;
+        document.getElementById('statActive').textContent = active;
+        document.getElementById('statOrders').textContent = orders.length;
     } catch (error) {
-        console.error('Error loading employees:', error);
-        alert('❌ Ошибка при загружке сотрудников: ' + error.message);
+        console.error('Error loading orders:', error);
     }
 }
 
-function addEmployeeModal() {
-    if (!currentUser || currentUser.role !== 'admin') {
-        alert('❌ Только администраторы могут добавлять сотрудников');
-        return;
-    }
-    
-    console.log('🔓 Открытие модального окна для сотрудника');
-    editingEmployeeId = null;
-    document.getElementById('modalTitle').textContent = 'Добавить сотрудника';
-    document.getElementById('employeeForm').reset();
-    document.getElementById('empPassword').parentElement.style.display = 'block';
-    document.getElementById('employeeModal').classList.remove('hidden');
-}
-
-function editEmployee(id, username, fullName, role) {
-    console.log('✏️ Редактирование сотрудника:', id);
-    editingEmployeeId = id;
-    document.getElementById('modalTitle').textContent = 'Редактировать сотрудника';
-    document.getElementById('empUsername').value = username;
-    document.getElementById('empName').value = fullName;
-    document.getElementById('empRole').value = role;
-    document.getElementById('empPassword').value = '';
-    document.getElementById('empPassword').placeholder = 'Оставьте пустым, чтобы не менять пароль';
-    document.getElementById('empPassword').parentElement.style.display = 'block';
-    document.getElementById('employeeModal').classList.remove('hidden');
-}
-
-async function deleteEmployee(id) {
-    if (!confirm('⚠️ Вы уверены, что хотите удалить сотрудника?')) {
-        return;
-    }
-    
+async function markOrderReady(orderId) {
     try {
-        console.log('🗑️ Удаление сотрудника:', id);
-        const response = await fetch(`${API_URL}/api/employees/${id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
+        const response = await fetch(`${API_URL}/api/orders/${orderId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'ready' })
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            alert('❌ Ошибка при удалении: ' + (errorData.detail || 'Неизвестная ошибка'));
-            return;
+            throw new Error('Ошибка при обновлении статуса заказа');
         }
 
-        alert('✅ Сотрудник успешно удален');
-        loadEmployees();
+        alert('✅ Заказ отмечен как готовый!');
+        loadOrders();
     } catch (error) {
-        console.error('Error deleting employee:', error);
+        console.error('Error marking order ready:', error);
         alert('❌ Ошибка: ' + error.message);
     }
-}
-
-function closeEmployeeModal() {
-    console.log('❌ Закрытие модального окна');
-    document.getElementById('employeeModal').classList.add('hidden');
-    editingEmployeeId = null;
-}
-
-function closeOrderModal() {
-    document.getElementById('orderModal').classList.add('hidden');
-}
-
-async function saveEmployee() {
-    const username = document.getElementById('empUsername').value;
-    const name = document.getElementById('empName').value;
-    const password = document.getElementById('empPassword').value;
-    const role = document.getElementById('empRole').value;
-
-    console.log('📝 Сохранение сотрудника:', { username, name, role, isEdit: !!editingEmployeeId });
-
-    if (!username || !name || !role) {
-        alert('❌ Пожалуйста, заполните все обязательные поля');
-        console.log('❌ Недостают поля:', { username: !username, name: !name, role: !role });
-        return;
-    }
-
-    if (!editingEmployeeId && !password) {
-        alert('❌ Пожалуйста, введите пароль');
-        return;
-    }
-
-    try {
-        let url = `${API_URL}/api/employees/`;
-        let method = 'POST';
-        let employeeData = {};
-
-        if (editingEmployeeId) {
-            url = `${API_URL}/api/employees/${editingEmployeeId}`;
-            method = 'PUT';
-            employeeData = {
-                full_name: name,
-                password: password || undefined
-            };
-            Object.keys(employeeData).forEach(k => employeeData[k] === undefined && delete employeeData[k]);
-        } else {
-            employeeData = {
-                username: username,
-                full_name: name,
-                password: password,
-                role: role
-            };
-        }
-        
-        console.log('📤 Отправка данных:', employeeData);
-        
-        const response = await fetch(url, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(employeeData)
-        });
-
-        console.log('📥 Ответ сервера:', response.status);
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.log('❌ Ошибка сервера:', errorData);
-            alert('❌ Ошибка: ' + (errorData.detail || 'Неизвестная ошибка'));
-            return;
-        }
-
-        const employee = await response.json();
-        console.log('✅ Сотрудник сохранен:', employee);
-        
-        const action = editingEmployeeId ? 'обновлен' : 'создан';
-        alert(`✅ Сотрудник "${employee.full_name}" (роль: ${getRoleText(employee.role)}) успешно ${action}!`);
-        closeEmployeeModal();
-        loadEmployees();
-    } catch (error) {
-        console.error('Error saving employee:', error);
-        alert('❌ Ошибка при сохранении: ' + error.message);
-    }
-}
-
-function showOrderDetails(order) {
-    let itemsHtml = '<div style="margin-top: 10px;">';
-    if (order.items && order.items.length > 0) {
-        order.items.forEach(item => {
-            itemsHtml += `
-                <div style="padding: 8px; background: #f9f9f9; margin-bottom: 8px; border-radius: 4px;">
-                    <strong>${item.name || 'Товар'}</strong><br>
-                    Кол-во: ${item.quantity} × ₽${item.price.toFixed(2)}
-                </div>
-            `;
-        });
-    } else {
-        itemsHtml += '<p style="color: #999;">Нет товаров в заказе</p>';
-    }
-    itemsHtml += '</div>';
-
-    document.getElementById('orderDetails').innerHTML = `
-        <div style="margin-bottom: 15px;">
-            <h4>Заказ #${order.id}</h4>
-            <p><strong>Стол:</strong> №${order.table_id}</p>
-            <p><strong>Статус:</strong> ${getStatusText(order.status)}</p>
-            <p><strong>Сумма:</strong> ₽${order.total_price.toFixed(2)}</p>
-        </div>
-        <h4>Товары:</h4>
-        ${itemsHtml}
-    `;
-    
-    document.getElementById('orderModal').classList.remove('hidden');
-}
-
-function getStatusText(status) {
-    const statuses = {
-        'pending': '⏳ Ожидание',
-        'confirmed': '✅ Подтвержден',
-        'ready': '🟢 Готово',
-        'completed': '✔️ Завершен',
-        'cancelled': '❌ Отменен'
-    };
-    return statuses[status] || status;
-}
-
-function getRoleText(role) {
-    const roles = {
-        'waiter': '👔 Официант',
-        'user': '👤 Пользователь',
-        'admin': '👨‍💼 Администратор'
-    };
-    return roles[role] || role;
 }
 
 setInterval(() => {
     if (currentUser && currentUser.role === 'waiter') {
         loadOrders();
-        loadTables();
     }
 }, 3000);
 
