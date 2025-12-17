@@ -4,13 +4,11 @@
 Скрипт для инициализации базы данных и создания таблиц
 """
 
-from app.database.core import engine
+from app.database.core import Base, engine, SessionLocal
 from app.models.user import User
 from app.models.menu import MenuItem
 from app.models.table import RestaurantTable
 from app.models.order import Order
-from sqlalchemy.orm import Session
-from app.database.core import SessionLocal
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -19,11 +17,8 @@ def init_db():
     """Инициализация БД и создание тестовых данных"""
     print("🔧 Создание таблиц в БД...")
     
-    # Создаём все таблицы
-    User.metadata.create_all(bind=engine)
-    MenuItem.metadata.create_all(bind=engine)
-    RestaurantTable.metadata.create_all(bind=engine)
-    Order.metadata.create_all(bind=engine)
+    # Создаём все таблицы используя Base.metadata
+    Base.metadata.create_all(bind=engine)
     
     print("✅ Таблицы созданы успешно!")
     
@@ -76,7 +71,7 @@ def init_db():
         if existing_menu > 0:
             print("⚠️  Меню уже существует, пропускаем создание...")
         else:
-            print("🍽️  Создание тестового меню...")
+            print("🙴 Создание тестового меню...")
             
             menu_items = [
                 MenuItem(
@@ -148,7 +143,7 @@ def init_db():
         if existing_tables > 0:
             print("⚠️  Столы уже существуют, пропускаем создание...")
         else:
-            print("🪑 Создание тестовых столов...")
+            print("🧨 Создание тестовых столов...")
             
             tables = [
                 RestaurantTable(table_number=1, seats=2, is_occupied=False),
@@ -168,10 +163,10 @@ def init_db():
             print("✅ Столы созданы!")
         
         print("\n✨ Инициализация БД завершена успешно!")
-        print("\n📝 Тестовые данные:")
-        print("Официант: ofikNum1 / 123321")
-        print("Повар: povarNum1 / 123321")
-        print("Администратор: adminNum1 / 123321")
+        print("\n📏 Тестовые данные:")
+        print("👤 Официант: ofikNum1 / 123321")
+        print("👨\u200d🍳 Повар: povarNum1 / 123321")
+        print("🧑\u200d💼 Администратор: adminNum1 / 123321")
         
     except Exception as e:
         print(f"❌ Ошибка при инициализации БД: {e}")
