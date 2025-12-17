@@ -17,6 +17,17 @@
             color: #333;
         }
 
+        /* Remove number spinner arrows */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
         /* AUTH SECTION */
         #authSection {
             display: flex;
@@ -658,7 +669,7 @@
         </div>
         <div class="app-body">
             <div class="sidebar">
-                <button class="menu-btn active" data-tab="menuTab">📋 Меню</button>
+                <button class="menu-btn active" data-tab="menuTab" id="menuBtn">📋 Меню</button>
                 <button class="menu-btn hidden" id="ordersMenuBtn" data-tab="ordersTab">📦 Заказы</button>
                 <button class="menu-btn hidden" id="cartMenuBtn" data-tab="cartTab" style="position: relative;">📋 Мой заказ <span id="cartBadge" class="hidden">0</span></button>
                 <button class="menu-btn hidden" id="employeesMenuBtn" data-tab="employeesTab">👥 Сотрудники</button>
@@ -854,6 +865,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=2.3.0"></script>
+    <script src="/static/js/app.js?v=2.4.0"></script>
 </body>
 </html>
