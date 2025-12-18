@@ -92,7 +92,10 @@ async function handleLogin() {
             const tablesManageBtn = document.getElementById('tablesManageBtn');
             const menuManageBtn = document.getElementById('menuManageBtn');
             
+            console.log('👤 Пользователь вошёл:', data.role);
+            
             if (data.role === 'admin') {
+                console.log('👨‍💼 АДМИН вошёл - настраиваю интерфейс...');
                 // Hide menu button for admin
                 if (menuBtn) menuBtn.classList.add('hidden');
                 if (ordersMenuBtn) ordersMenuBtn.classList.add('hidden');
@@ -103,9 +106,12 @@ async function handleLogin() {
                 document.getElementById('statEmployeeCard').classList.add('hidden');
                 cartBtn.classList.add('hidden');
                 
+                console.log('✅ АДМИН: Видит кнопки "Удалить стол" и "Удалить блюдо"');
+                
                 // Switch to management tab
                 handleTabSwitch(tablesManageBtn);
             } else if (data.role === 'chef') {
+                console.log('👨‍🍳 ПОВАР вошёл - настраиваю интерфейс...');
                 if (menuBtn) menuBtn.classList.remove('hidden');
                 if (ordersMenuBtn) ordersMenuBtn.classList.remove('hidden');
                 if (tablesStatusBtn) tablesStatusBtn.classList.add('hidden');
@@ -114,9 +120,12 @@ async function handleLogin() {
                 if (menuManageBtn) menuManageBtn.classList.add('hidden');
                 cartBtn.classList.add('hidden');
                 
+                console.log('✅ ПОВАР: Видит кнопку "Удалить заказ"');
+                
                 // Switch to orders tab
                 handleTabSwitch(ordersMenuBtn);
             } else if (data.role === 'waiter') {
+                console.log('👔 ОФИЦИАНТ вошёл - настраиваю интерфейс...');
                 if (menuBtn) menuBtn.classList.remove('hidden');
                 if (ordersMenuBtn) ordersMenuBtn.classList.add('hidden');
                 if (tablesStatusBtn) tablesStatusBtn.classList.remove('hidden');
@@ -124,6 +133,8 @@ async function handleLogin() {
                 if (tablesManageBtn) tablesManageBtn.classList.add('hidden');
                 if (menuManageBtn) menuManageBtn.classList.add('hidden');
                 cartBtn.classList.remove('hidden');
+                
+                console.log('✅ ОФИЦИАНТ: Видит кнопку "Добавить блюдо в заказ"');
             }
 
             loadMenuItems();
@@ -134,6 +145,7 @@ async function handleLogin() {
             
             if (data.role === 'admin') {
                 loadTablesForManagement();
+                loadMenuForManagement();
             }
 
             console.log('✅ Успешный вход:', data);
@@ -370,6 +382,7 @@ async function loadMenuForManagement() {
                 menuManageContent.appendChild(itemEl);
             });
         }
+        console.log('✅ Меню для управления загружено:', items.length, 'блюд');
     } catch (error) {
         console.error('Ошибка загрузки меню для управления:', error);
     }
@@ -430,7 +443,7 @@ async function deleteMenuItem(itemId) {
     const id = parseInt(itemId, 10);
     
     try {
-        console.log('🗑️ Удаление блюда с ID:', id);
+        console.log('🗑️ АДМИН удаляет блюдо ID:', id);
         
         const response = await fetch(`${API_URL}/api/menu/${id}`, {
             method: 'DELETE',
@@ -450,6 +463,7 @@ async function deleteMenuItem(itemId) {
             itemElement.remove();
         }
         
+        console.log('✅ Блюдо удалено успешно');
         alert('✅ Блюдо удалено из меню');
         loadMenuForManagement();
         loadMenuItems(); // Update menu for waiter
@@ -469,6 +483,8 @@ function addToCartById(itemId) {
         return;
     }
 
+    console.log('📋 ОФИЦИАНТ добавляет блюдо в заказ:', menuItem.name);
+
     const existing = cart.find(item => item.id === id);
     if (existing) {
         existing.quantity += 1;
@@ -481,6 +497,7 @@ function addToCartById(itemId) {
         });
     }
 
+    console.log('✅ Блюдо добавлено в корзину');
     updateCartBadge();
     alert(`✅ "${menuItem.name}" добавлено в заказ!`);
 }
@@ -511,6 +528,7 @@ async function loadTablesForManagement() {
                 tablesManageContent.appendChild(tableEl);
             });
         }
+        console.log('✅ Столы для управления загружены:', tables.length, 'столов');
     } catch (error) {
         console.error('Ошибка загрузки столов:', error);
     }
@@ -566,7 +584,7 @@ async function deleteTable(tableId) {
     const id = parseInt(tableId, 10);
     
     try {
-        console.log('🗑️ Удаление стола с ID:', id);
+        console.log('🗑️ АДМИН удаляет стол ID:', id);
         
         const response = await fetch(`${API_URL}/api/tables/${id}`, {
             method: 'DELETE',
@@ -586,6 +604,7 @@ async function deleteTable(tableId) {
             tableElement.remove();
         }
         
+        console.log('✅ Стол удалён успешно');
         alert('✅ Стол удален');
         loadTablesForManagement();
     } catch (error) {
@@ -952,6 +971,7 @@ async function loadOrders() {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const orderId = parseInt(btn.getAttribute('data-order-id'));
+                console.log('👨‍🍳 ПОВАР отмечает заказ #' + orderId + ' как готов');
                 markOrderReady(orderId);
             });
         });
@@ -960,6 +980,7 @@ async function loadOrders() {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const orderId = parseInt(btn.getAttribute('data-order-id'));
+                console.log('👨‍🍳 ПОВАР удаляет заказ #' + orderId);
                 deleteOrder(orderId);
             });
         });
@@ -1012,7 +1033,7 @@ async function deleteOrder(orderId) {
     const id = parseInt(orderId, 10);
     
     try {
-        console.log('🗑️ Удаление заказа с ID:', id);
+        console.log('🗑️ ПОВАР удаляет заказ ID:', id);
         
         const response = await fetch(`${API_URL}/api/orders/${id}`, {
             method: 'DELETE',
@@ -1032,6 +1053,7 @@ async function deleteOrder(orderId) {
             orderElement.remove();
         }
         
+        console.log('✅ Заказ удалён успешно');
         alert('✅ Заказ удален');
         loadOrders();
     } catch (error) {
@@ -1099,5 +1121,9 @@ setInterval(() => {
 }, 3000);
 
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('✅ App initialized');
+    console.log('✅ App initialized - Система готова!');
+    console.log('🔐 Используйте учётные данные для входа:');
+    console.log('   Повар: chefNum1 / chef123');
+    console.log('   Официант: waiterNum1 / waiter123');
+    console.log('   Администратор: adminNum1 / admin123');
 });
