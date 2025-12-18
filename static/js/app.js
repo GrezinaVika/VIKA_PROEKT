@@ -97,10 +97,10 @@ async function handleLogin() {
                 if (menuBtn) menuBtn.classList.add('hidden');
                 if (ordersMenuBtn) ordersMenuBtn.classList.add('hidden');
                 if (tablesStatusBtn) tablesStatusBtn.classList.add('hidden');
+                if (employeesBtn) employeesBtn.classList.add('hidden');
                 if (tablesManageBtn) tablesManageBtn.classList.remove('hidden');
                 if (menuManageBtn) menuManageBtn.classList.remove('hidden');
-                employeesBtn.classList.remove('hidden');
-                document.getElementById('statEmployeeCard').classList.remove('hidden');
+                document.getElementById('statEmployeeCard').classList.add('hidden');
                 cartBtn.classList.add('hidden');
                 
                 // Switch to management tab
@@ -109,9 +109,9 @@ async function handleLogin() {
                 if (menuBtn) menuBtn.classList.remove('hidden');
                 if (ordersMenuBtn) ordersMenuBtn.classList.remove('hidden');
                 if (tablesStatusBtn) tablesStatusBtn.classList.add('hidden');
+                if (employeesBtn) employeesBtn.classList.add('hidden');
                 if (tablesManageBtn) tablesManageBtn.classList.add('hidden');
                 if (menuManageBtn) menuManageBtn.classList.add('hidden');
-                employeesBtn.classList.add('hidden');
                 cartBtn.classList.add('hidden');
                 
                 // Switch to orders tab
@@ -120,9 +120,9 @@ async function handleLogin() {
                 if (menuBtn) menuBtn.classList.remove('hidden');
                 if (ordersMenuBtn) ordersMenuBtn.classList.add('hidden');
                 if (tablesStatusBtn) tablesStatusBtn.classList.remove('hidden');
+                if (employeesBtn) employeesBtn.classList.add('hidden');
                 if (tablesManageBtn) tablesManageBtn.classList.add('hidden');
                 if (menuManageBtn) menuManageBtn.classList.add('hidden');
-                employeesBtn.classList.add('hidden');
                 cartBtn.classList.remove('hidden');
             }
 
@@ -133,7 +133,6 @@ async function handleLogin() {
             }
             
             if (data.role === 'admin') {
-                loadEmployees();
                 loadTablesForManagement();
             }
 
@@ -600,7 +599,7 @@ async function deleteTable(tableId) {
 // Employees
 async function loadEmployees() {
     try {
-        console.log('🔄 Загружка сотрудников...');
+        console.log('🔄 Загрузка сотрудников...');
         const response = await fetch(`${API_URL}/api/employees/`);
         
         if (!response.ok) {
@@ -627,7 +626,6 @@ async function loadEmployees() {
                 <td><span class="role-badge ${emp.role}">${getRoleText(emp.role)}</span></td>
                 <td>
                     <div class="employee-actions">
-                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="editEmployee(${emp.id}, '${emp.username}', '${emp.full_name}', '${emp.role}')">✏️ Изменить</button>
                         <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteEmployee(${emp.id})">🗑️ Удалить</button>
                     </div>
                 </td>
@@ -637,36 +635,17 @@ async function loadEmployees() {
         
         document.getElementById('statEmployees').textContent = employees.length;
     } catch (error) {
-        console.error('Ошибка загружки сотрудников:', error);
+        console.error('Ошибка загрузки сотрудников:', error);
         alert('❌ Ошибка при загрузке сотрудников: ' + error.message);
     }
 }
 
 function addEmployeeModal() {
-    if (!currentUser || currentUser.role !== 'admin') {
-        alert('❌ Только администраторы могут добавлять сотрудников');
-        return;
-    }
-    
-    console.log('🔓 Открытие модального окна');
-    editingEmployeeId = null;
-    document.getElementById('modalTitle').textContent = 'Добавить сотрудника';
-    document.getElementById('employeeForm').reset();
-    document.getElementById('empPassword').parentElement.style.display = 'block';
-    document.getElementById('employeeModal').classList.remove('hidden');
+    alert('❌ Добавление сотрудников недоступно');
 }
 
 function editEmployee(id, username, fullName, role) {
-    console.log('✏️ Редактирование сотрудника:', id);
-    editingEmployeeId = id;
-    document.getElementById('modalTitle').textContent = 'Редактировать сотрудника';
-    document.getElementById('empUsername').value = username;
-    document.getElementById('empName').value = fullName;
-    document.getElementById('empRole').value = role;
-    document.getElementById('empPassword').value = '';
-    document.getElementById('empPassword').placeholder = 'Оставьте пустым, чтобы не менять';
-    document.getElementById('empPassword').parentElement.style.display = 'block';
-    document.getElementById('employeeModal').classList.remove('hidden');
+    alert('❌ Редактирование сотрудников недоступно');
 }
 
 async function deleteEmployee(id) {
@@ -706,73 +685,7 @@ function closeOrderModal() {
 }
 
 async function saveEmployee() {
-    const username = document.getElementById('empUsername').value;
-    const name = document.getElementById('empName').value;
-    const password = document.getElementById('empPassword').value;
-    const role = document.getElementById('empRole').value;
-
-    console.log('📝 Сохранение сотрудника:', { username, name, role, isEdit: !!editingEmployeeId });
-
-    if (!username || !name || !role) {
-        alert('❌ Пожалуйста, заполните все обязательные поля');
-        return;
-    }
-
-    if (!editingEmployeeId && !password) {
-        alert('❌ Пожалуйста, введите пароль');
-        return;
-    }
-
-    try {
-        let url = `${API_URL}/api/employees/`;
-        let method = 'POST';
-        let employeeData = {};
-
-        if (editingEmployeeId) {
-            url = `${API_URL}/api/employees/${editingEmployeeId}`;
-            method = 'PUT';
-            employeeData = {
-                full_name: name,
-                password: password || undefined
-            };
-            Object.keys(employeeData).forEach(k => employeeData[k] === undefined && delete employeeData[k]);
-        } else {
-            employeeData = {
-                username: username,
-                full_name: name,
-                password: password,
-                role: role
-            };
-        }
-        
-        console.log('📤 Отправка данных:', employeeData);
-        
-        const response = await fetch(url, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(employeeData)
-        });
-
-        console.log('📥 Ответ сервера:', response.status);
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.log('❌ Ошибка сервера:', errorData);
-            alert('❌ Ошибка: ' + (errorData.detail || 'Неизвестная ошибка'));
-            return;
-        }
-
-        const employee = await response.json();
-        console.log('✅ Сотрудник сохранен:', employee);
-        
-        const action = editingEmployeeId ? 'обновлен' : 'создан';
-        alert(`✅ Сотрудник "${employee.full_name}" (${getRoleText(employee.role)}) успешно ${action}!`);
-        closeEmployeeModal();
-        loadEmployees();
-    } catch (error) {
-        console.error('Ошибка сохранения сотрудника:', error);
-        alert('❌ Ошибка при сохранении: ' + error.message);
-    }
+    alert('❌ Сохранение сотрудников недоступно');
 }
 
 // CART
