@@ -10,7 +10,6 @@ from sqladmin import Admin, ModelView
 from app.database.core import Base, engine
 from app.database.models import User, MenuItem, Table
 
-# Import all routers
 from app.api.auth import router as auth_router
 from app.api.menu import router as menu_router
 from app.api.tables import router as tables_router
@@ -23,11 +22,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Create tables on startup (only structure, not data)
 Base.metadata.create_all(bind=engine)
-# NOTE: init_db() is removed - run it manually once with: python init_db.py
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

@@ -23,13 +23,13 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     if not user or not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
+            detail="Пароль неверный"
         )
     
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is inactive"
+            detail="Пользователь не найден"
         )
     
     return LoginResponse(
@@ -37,7 +37,7 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
         username=user.username,
         full_name=user.full_name,
         role=user.role,
-        message="Login successful"
+        message="Вход выполнен успешно!"
     )
 
 @router.post("/register", response_model=UserResponse)
@@ -47,9 +47,88 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already exists"
+            detail="Имя пользователя занято"
         )
     
+    password = user_data.password
+
+# ВАЛИДАЦИЯ ПАРОЛЯ
+    if len(user_data.password) < 6:
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Пароль должен содержать не менее 6 символов"
+    )
+
+    if len(user_data.password) > 15:
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Пароль должен содержать не более 15 символов"
+    )
+
+    if not any(c.isupper() for c in user_data.password):
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Пароль должен содержать хотя бы одну заглавную букву"
+    )
+
+    if not any(c.islower() for c in user_data.password):
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Пароль должен содержать хотя бы одну строчную букву"
+    )
+
+    if not any(c.isdigit() for c in user_data.password):
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Пароль должен содержать хотя бы одну цифру"
+    )
+
+    if ' ' in user_data.password:
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Пароль не должен содержать пробелы"
+    )
+
+# Валидация логина
+    if len(user_data.username) < 6:
+       raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Логин должен содержать не менее 6 символов"
+    )
+
+    if len(user_data.username) > 15:
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Логин должен содержать не более 15 символов"
+        )
+
+# Проверка наличия символа @
+    if '@' not in user_data.username:
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Логин должен быть в формате email (содержать @)"
+    )
+
+# Проверка на пробелы
+    if ' ' in user_data.username:
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Логин не должен содержать пробелы"
+    )
+
+# Проверка полного имени
+    if len(user_data.full_name) < 6:
+       raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Имя должно содержать не менее 6 символов"
+    )
+
+    if len(user_data.full_name) > 15:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Имя должно содержать не более 15 символов"
+        )
+        
     new_user = User(
         username=user_data.username,
         password_hash=hash_password(user_data.password),
