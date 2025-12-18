@@ -85,14 +85,19 @@ def update_order(order_id: int, order_data: OrderUpdate, db: Session = Depends(g
 @router.delete("/{order_id}")
 def delete_order(order_id: int, db: Session = Depends(get_db)):
     """Delete order"""
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    
-    table = db.query(RestaurantTable).filter(RestaurantTable.id == order.table_id).first()
-    if table:
-        table.is_occupied = False
-    
-    db.delete(order)
-    db.commit()
-    return {"message": "Order deleted successfully"}
+    try:
+        order = db.query(Order).filter(Order.id == order_id).first()
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        table = db.query(RestaurantTable).filter(RestaurantTable.id == order.table_id).first()
+        if table:
+            table.is_occupied = False
+        
+        db.delete(order)
+        db.commit()
+        return {"message": "Order deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        print(f"Error deleting order: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error deleting order: {str(e)}")
