@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
 Simplified script to reset database - run from project root
+DELETES old database file and creates new one from scratch
 Usage: python reset_database.py
 """
 
@@ -32,25 +33,34 @@ def enable_foreign_keys(dbapi_connection, connection_record):
 def reset_database():
     """
     Complete database reset:
-    1. Drop all tables
-    2. Recreate with proper constraints
-    3. Create default users
+    1. Delete old database file
+    2. Create new engine
+    3. Create tables with proper constraints
+    4. Create default users
     """
+    
+    print("\n" + "="*60)
+    print("🔄 RESETTING DATABASE")
+    print("="*60)
+    
+    # Extract database file path from URL
+    # SQLite URL is like: sqlite:///./test.db
+    db_path = SQLALCHEMY_DATABASE_URL.split("///")[-1]
+    
+    # Delete old database file if it exists
+    if os.path.exists(db_path):
+        print(f"\n🗑️  Deleting old database file: {db_path}")
+        try:
+            os.remove(db_path)
+            print(f"   ✅ Old database deleted")
+        except Exception as e:
+            print(f"   ⚠️  Could not delete: {str(e)}")
     
     # Create engine with foreign keys enabled
     engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False)
     
     # Enable foreign key constraints
     event.listen(Engine, "connect", enable_foreign_keys)
-    
-    print("\n" + "="*60)
-    print("🔄 RESETTING DATABASE")
-    print("="*60)
-    
-    # Drop all tables
-    print("\n🗑️  Dropping all existing tables...")
-    Base.metadata.drop_all(bind=engine)
-    print("   ✅ Tables dropped")
     
     # Create all tables with new schema
     print("\n✅ Creating all tables with constraints...")
@@ -132,6 +142,9 @@ def reset_database():
     print("   Официант: waiterNum1 / waiter123")
     print("   Администратор: adminNum1 / admin123")
     print("\n✨ All buttons should now work correctly!\n")
+    print(f"   Database: {db_path}")
+    print(f"   Foreign Keys: ENABLED")
+    print(f"   Cascade Delete: ENABLED\n")
 
 
 if __name__ == "__main__":
