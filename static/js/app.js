@@ -1,15 +1,13 @@
 const API_URL = window.location.origin;
 
-// Global state
 let currentUser = null;
 let currentTab = 'menuTab';
 let isLoginMode = true;
 let cart = [];
 let allMenuItems = [];
 let editingEmployeeId = null;
-let waiterNotifications = []; // Notifications for waiter
+let waiterNotifications = []; 
 
-// Elements
 const authSection = document.getElementById('authSection');
 const appSection = document.getElementById('appSection');
 const loginBtn = document.getElementById('doLogin');

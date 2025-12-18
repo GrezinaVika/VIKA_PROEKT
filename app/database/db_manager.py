@@ -1,7 +1,6 @@
 from app.database.database import async_session_maker
 from app.repositories.roles import RolesRepository
 from app.repositories.users import UsersRepository
-from sqlalchemy.ext.asyncio import async_sessionmaker
 
 class DBManager:
     def __init__(self, session_factory: async_session_maker):
