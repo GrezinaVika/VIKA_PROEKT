@@ -6,7 +6,7 @@ class UserCreate(BaseModel):
     username: str
     password: str
     full_name: str
-    role: str  # chef (повар), waiter (официант), admin
+    role: str  
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None

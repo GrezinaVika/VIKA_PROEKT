@@ -36,7 +36,6 @@ def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
     if not table:
         raise HTTPException(status_code=404, detail="Table not found")
     
-    # Calculate total price
     total_price = 0
     items_data = []
     for item in order_data.items:

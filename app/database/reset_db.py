@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Script to reset database completely and recreate with proper foreign key constraints.
 Run this if you get foreign key constraint errors.
@@ -32,36 +31,30 @@ def reset_database():
     3. Create default users
     """
     
-    # Create engine with foreign keys enabled
     engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
     
-    # Enable foreign key constraints
     event.listen(Engine, "connect", enable_foreign_keys)
     
     print("\n" + "="*60)
     print("🔄 RESETTING DATABASE")
     print("="*60)
     
-    # Drop all tables
     print("\n🗑️  Dropping all existing tables...")
     Base.metadata.drop_all(bind=engine)
     
-    # Create all tables with new schema
     print("\n✅ Creating all tables with constraints...")
     Base.metadata.create_all(bind=engine)
     
-    # Create default users
     print("\n👥 Creating default users...")
     from sqlalchemy.orm import sessionmaker
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = SessionLocal()
     
     try:
-        # Create default users
         users_data = [
             {
                 "username": "chefNum1",
-                "password": "chef123",  # In real app, this should be hashed
+                "password": "chef123",  
                 "full_name": "Иван Шеф",
                 "role": "chef"
             },
@@ -86,7 +79,6 @@ def reset_database():
         
         db.commit()
         
-        # Create default tables
         print("\n🪑 Creating default restaurant tables...")
         for table_num in range(1, 6):
             table = RestaurantTable(table_number=table_num, seats=4, is_occupied=False)
@@ -95,7 +87,6 @@ def reset_database():
         
         db.commit()
         
-        # Create default menu items
         print("\n🍽️  Creating default menu items...")
         menu_items_data = [
             {"name": "Борщ", "description": "Украинский борщ", "price": 250.0, "category": "Супы"},

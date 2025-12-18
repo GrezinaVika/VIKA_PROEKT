@@ -28,7 +28,6 @@ class BaseRepository:
 
         if limit is not None and offset is not None:
             query = query.limit(limit).offset(offset)
-        # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(query)
         result = [
             self.schema.model_validate(model, from_attributes=True)
@@ -57,7 +56,6 @@ class BaseRepository:
             add_stmt = (
                 insert(self.model).values(**data.model_dump()).returning(self.model)
             )
-            # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
 
             result = await self.session.execute(add_stmt)
 
@@ -74,7 +72,6 @@ class BaseRepository:
         Метод для множественного добавления данных в таблицу
         """
         add_stmt = insert(self.model).values([item.model_dump() for item in data])
-        # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(add_stmt)
 
     async def delete(self, *filters, **filter_by) -> None:

@@ -60,12 +60,10 @@ def delete_table(table_id: int, db: Session = Depends(get_db)):
         if not table:
             raise HTTPException(status_code=404, detail="Table not found")
         
-        # Delete all orders associated with this table
         orders = db.query(Order).filter(Order.table_id == table_id).all()
         for order in orders:
             db.delete(order)
         
-        # Delete the table
         db.delete(table)
         db.commit()
         

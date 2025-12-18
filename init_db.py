@@ -18,21 +18,17 @@ def init_db():
     """Инициализация БД и создание тестовых данных"""
     print("[INIT] Initializing database...")
     
-    # УДАЛЯЕМ ВСЕ СТАРЫЕ ТАБЛИЦЫ И ПЕРЕСОЗДАЁМ ВСЁ С НУЛЯ
     Base.metadata.drop_all(bind=engine)
     print("[OK] Dropped all existing tables")
     
-    # Создаём все таблицы заново
     Base.metadata.create_all(bind=engine)
     print("[OK] Created all tables")
     
-    # Создаём тестовых пользователей
     db = SessionLocal()
     
     try:
         print("[OK] Test users created:")
         
-        # Повар (ПОВАР!)
         chef = User(
             username="chefNum1",
             password_hash=pwd_context.hash("chef123"),
@@ -43,7 +39,6 @@ def init_db():
         db.add(chef)
         print("     Chef: chefNum1 / chef123")
         
-        # Официант
         waiter = User(
             username="waiterNum1",
             password_hash=pwd_context.hash("waiter123"),
@@ -54,7 +49,6 @@ def init_db():
         db.add(waiter)
         print("     Waiter: waiterNum1 / waiter123")
         
-        # Администратор
         admin = User(
             username="adminNum1",
             password_hash=pwd_context.hash("admin123"),
@@ -67,11 +61,9 @@ def init_db():
         
         db.commit()
         
-        # Создаём тестовое меню
         print("[OK] Menu items created (6 items)")
         
         menu_items = [
-            # ЗАКУСКИ
             MenuItem(
                 name="Салат Цезарь",
                 description="Классический салат с курицей, пармезаном и соусом Цезарь",
@@ -94,7 +86,6 @@ def init_db():
                 is_available=True
             ),
             
-            # ОСНОВНЫЕ БЛЮДА
             MenuItem(
                 name="Стейк из говядины",
                 description="Мраморная говядина, приготовленная на гриле, с овощами",
@@ -123,7 +114,6 @@ def init_db():
         
         db.commit()
         
-        # Создаём тестовые столы
         print("[OK] Restaurant tables created (6 tables)")
         
         tables = [

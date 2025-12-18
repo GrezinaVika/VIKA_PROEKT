@@ -6,8 +6,8 @@ class Order(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     table_id = Column(Integer, ForeignKey("restaurant_tables.id", ondelete="CASCADE"), nullable=False)
-    status = Column(String(20), default="pending")  # pending, confirmed, ready, completed, cancelled
-    items = Column(JSON, nullable=False)  # [{"menu_item_id": 1, "quantity": 2}, ...]
+    status = Column(String(20), default="pending") 
+    items = Column(JSON, nullable=False) 
     total_price = Column(Float, nullable=False)
     waiter_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, server_default=func.now())

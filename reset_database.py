@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Simplified script to reset database - run from project root
 DELETES old database file and creates new one from scratch
@@ -8,14 +7,12 @@ Usage: python reset_database.py
 import os
 import sys
 
-# Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
-# Import models and config
 from app.database.core import Base
 from app.config import settings
 from app.models.user import User
@@ -44,11 +41,8 @@ def reset_database():
     print("🔄 RESETTING DATABASE")
     print("="*60)
     
-    # Extract database file path from URL
-    # SQLite URL is like: sqlite:///restaurant.db
     db_path = settings.DATABASE_URL.replace("sqlite:///", "")
     
-    # Delete old database file if it exists
     if os.path.exists(db_path):
         print(f"\n🗑️  Deleting old database file: {db_path}")
         try:
@@ -57,24 +51,19 @@ def reset_database():
         except Exception as e:
             print(f"   ⚠️  Could not delete: {str(e)}")
     
-    # Create engine with foreign keys enabled
     engine = create_engine(settings.DATABASE_URL, echo=False)
     
-    # Enable foreign key constraints
     event.listen(Engine, "connect", enable_foreign_keys)
     
-    # Create all tables with new schema
     print("\n✅ Creating all tables with constraints...")
     Base.metadata.create_all(bind=engine)
     print("   ✅ Tables created")
     
-    # Create default users
     print("\n👥 Creating default users...")
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = SessionLocal()
     
     try:
-        # Create default users
         users_data = [
             {
                 "username": "chefNum1",
@@ -103,7 +92,6 @@ def reset_database():
         
         db.commit()
         
-        # Create default tables
         print("\n🍽️  Creating default restaurant tables...")
         for table_num in range(1, 6):
             table = RestaurantTable(table_number=table_num, seats=4, is_occupied=False)
@@ -112,7 +100,6 @@ def reset_database():
         
         db.commit()
         
-        # Create default menu items
         print("\n🍽️  Creating default menu items...")
         menu_items_data = [
             {"name": "Борщ", "description": "Украинский борщ", "price": 250.0, "category": "Супы"},

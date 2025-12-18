@@ -53,8 +53,6 @@ def delete_menu_item(item_id: int, db: Session = Depends(get_db)):
         if not item:
             raise HTTPException(status_code=404, detail="Menu item not found")
         
-        # Menu items can be deleted anytime because they are copied to orders as JSON
-        # This prevents foreign key constraint issues
         item_name = item.name
         db.delete(item)
         db.commit()

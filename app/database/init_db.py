@@ -8,13 +8,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def init_db():
     """Initialize database with tables and test data"""
-    # Create tables
     Base.metadata.create_all(bind=engine)
     
     db = SessionLocal()
     
     try:
-        # Check if users already exist
         existing_users = db.query(User).count()
         if existing_users > 0:
             print("[OK] Database already initialized with users")
@@ -22,7 +20,6 @@ def init_db():
         
         print("[INIT] Initializing database...")
         
-        # Create test users
         users = [
             User(
                 username="chefNum1",
@@ -51,7 +48,6 @@ def init_db():
         print("     Waiter: waiterNum1 / waiter123")
         print("     Admin: adminNum1 / admin123")
         
-        # Create test menu items
         menu_items = [
             MenuItem(name="Borsch", description="Ukrainian soup", price=150.0, category="Main"),
             MenuItem(name="Pelmeni", description="Russian dumplings", price=200.0, category="Main"),
@@ -65,7 +61,6 @@ def init_db():
         db.commit()
         print("[OK] Menu items created (6 items)")
         
-        # Create test tables
         tables = [
             RestaurantTable(table_number=1, seats=2),
             RestaurantTable(table_number=2, seats=2),

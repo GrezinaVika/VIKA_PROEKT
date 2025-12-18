@@ -140,7 +140,6 @@ async function handleLogin() {
             
             if (data.role === 'chef') {
                 loadOrders();
-                // Auto-refresh orders every 2 seconds for chef
                 setInterval(() => {
                     if (currentUser && currentUser.role === 'chef') {
                         loadOrders();
@@ -149,7 +148,6 @@ async function handleLogin() {
             }
             
             if (data.role === 'waiter') {
-                // Auto-refresh notifications every 3 seconds for waiter
                 setInterval(() => {
                     if (currentUser && currentUser.role === 'waiter') {
                         loadTablesForStatus();
@@ -236,7 +234,6 @@ function handleTabSwitch(btn) {
     }
 }
 
-// Check for ready orders and notify waiter
 async function checkForReadyOrders() {
     try {
         const response = await fetch(`${API_URL}/api/orders/`);
@@ -244,7 +241,6 @@ async function checkForReadyOrders() {
         
         orders.forEach(order => {
             if (order.status === 'ready') {
-                // Check if we already notified about this order
                 if (!waiterNotifications.includes(order.id)) {
                     waiterNotifications.push(order.id);
                     showWaiterNotification(`🍽️ Заказ #${order.id} готов! (Стол №${order.table_id})`, order.id);
@@ -256,7 +252,6 @@ async function checkForReadyOrders() {
     }
 }
 
-// Show notification for waiter
 function showWaiterNotification(message, orderId) {
     const notification = document.createElement('div');
     notification.style.cssText = `
@@ -310,7 +305,6 @@ function showWaiterNotification(message, orderId) {
     notification.appendChild(closeBtn);
     document.body.appendChild(notification);
     
-    // Auto-remove after 8 seconds
     setTimeout(() => {
         if (notification.parentElement) {
             notification.remove();
@@ -318,7 +312,6 @@ function showWaiterNotification(message, orderId) {
     }, 8000);
 }
 
-// Complete order from notification
 async function completeOrder(orderId) {
     try {
         const response = await fetch(`${API_URL}/api/orders/${orderId}`, {
@@ -330,7 +323,6 @@ async function completeOrder(orderId) {
         if (response.ok) {
             alert('✅ Заказ завершен!');
             loadTablesForStatus();
-            // Remove from notifications
             waiterNotifications = waiterNotifications.filter(id => id !== orderId);
         }
     } catch (error) {
@@ -338,7 +330,6 @@ async function completeOrder(orderId) {
     }
 }
 
-// WAITER: Table Status Management with 3D Flip Animation
 async function loadTablesForStatus() {
     try {
         const response = await fetch(`${API_URL}/api/tables/`);
@@ -360,7 +351,6 @@ async function loadTablesForStatus() {
             tableCard.className = `table-card ${table.is_occupied ? 'occupied' : 'free'}`;
             tableCard.setAttribute('data-table-id', table.id);
             
-            // Front side
             const frontFace = document.createElement('div');
             frontFace.className = 'table-card-front';
             frontFace.innerHTML = `
@@ -373,7 +363,6 @@ async function loadTablesForStatus() {
                 </button>
             `;
             
-            // Back side
             const backFace = document.createElement('div');
             backFace.className = 'table-card-back';
             backFace.innerHTML = `
@@ -398,14 +387,11 @@ async function loadTablesForStatus() {
 
 async function toggleTableStatus(tableId, isOccupied) {
     try {
-        // Find the card element
         const card = document.querySelector(`[data-table-id="${tableId}"]`);
         
         if (card) {
-            // Add flip animation
             card.classList.add('flipping');
             
-            // Wait for animation to reach halfway (300ms of 600ms)
             await new Promise(resolve => setTimeout(resolve, 300));
         }
         
@@ -417,20 +403,16 @@ async function toggleTableStatus(tableId, isOccupied) {
 
         if (!response.ok) throw new Error('Ошибка обновления статуса стола');
         
-        // Wait for the rest of animation
         await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Reload tables to show updated state
         loadTablesForStatus();
     } catch (error) {
         console.error('Ошибка изменения статуса стола:', error);
         alert('❌ Ошибка: ' + error.message);
-        // Reload on error
         loadTablesForStatus();
     }
 }
 
-// Menu items
 async function loadMenuItems() {
     try {
         const response = await fetch(`${API_URL}/api/menu/`);
@@ -480,7 +462,6 @@ async function loadMenuItems() {
     }
 }
 
-// ADMIN: Menu Management with Event Delegation
 async function loadMenuForManagement() {
     try {
         const response = await fetch(`${API_URL}/api/menu/`);
@@ -513,7 +494,6 @@ async function loadMenuForManagement() {
     }
 }
 
-// Event delegation for menu delete buttons
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('delete-menu-btn')) {
         e.preventDefault();
@@ -524,7 +504,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Event delegation for table delete buttons
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('delete-table-btn')) {
         e.preventDefault();
@@ -660,7 +639,6 @@ function addToCartById(itemId) {
     alert(`✅ "${menuItem.name}" добавлено в заказ!`);
 }
 
-// ADMIN: Table Management with Event Delegation
 async function loadTablesForManagement() {
     try {
         const response = await fetch(`${API_URL}/api/tables/`);
@@ -783,7 +761,6 @@ async function deleteTable(tableId) {
     }
 }
 
-// Employees
 async function loadEmployees() {
     try {
         console.log('🔄 Загрузка сотрудников...');
@@ -875,7 +852,6 @@ async function saveEmployee() {
     alert('❌ Сохранение сотрудников недоступно');
 }
 
-// CART
 function updateCartBadge() {
     const badge = document.getElementById('cartBadge');
     if (badge) {
@@ -1037,7 +1013,6 @@ async function createOrder() {
     }
 }
 
-// CHEF: Orders Management
 async function loadOrders() {
     try {
         const response = await fetch(`${API_URL}/api/orders/`);
@@ -1064,7 +1039,6 @@ async function loadOrders() {
             orderEl.className = 'order';
             orderEl.setAttribute('data-order-id', order.id);
             
-            // Front side
             const frontFace = document.createElement('div');
             frontFace.className = 'order-front';
             let frontHtml = `
@@ -1074,7 +1048,6 @@ async function loadOrders() {
             `;
             
             if (currentUser && (currentUser.role === 'chef' || currentUser.role === 'admin')) {
-                // ONLY SHOW "MARK READY" BUTTON for pending/confirmed - NOT for ready/completed
                 if (order.status === 'pending' || order.status === 'confirmed') {
                     const readyBtn = document.createElement('button');
                     readyBtn.className = 'btn btn-primary order-ready-btn';
@@ -1106,7 +1079,6 @@ async function loadOrders() {
                     frontFace.innerHTML = frontHtml;
                     frontFace.appendChild(btnContainer);
                 }
-                // Show delete button for other statuses
                 else {
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn btn-danger order-delete-btn';
@@ -1125,7 +1097,6 @@ async function loadOrders() {
                 frontFace.innerHTML = frontHtml;
             }
             
-            // Back side (green success state)
             const backFace = document.createElement('div');
             backFace.className = 'order-back';
             backFace.innerHTML = `
@@ -1138,7 +1109,6 @@ async function loadOrders() {
             orderEl.appendChild(frontFace);
             orderEl.appendChild(backFace);
             
-            // Add click to view details (only on front, not on buttons)
             frontFace.addEventListener('click', (e) => {
                 if (!e.target.classList.contains('btn')) {
                     showOrderDetails(order);
@@ -1158,14 +1128,11 @@ async function loadOrders() {
 
 async function markOrderReady(orderId) {
     try {
-        // Find the order element
         const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
         
         if (orderCard) {
-            // Add flip animation
             orderCard.classList.add('flipping');
             
-            // Wait for animation to reach halfway (500ms of 1000ms)
             await new Promise(resolve => setTimeout(resolve, 500));
         }
         
@@ -1179,7 +1146,6 @@ async function markOrderReady(orderId) {
             throw new Error('Ошибка при обновлении статуса заказа');
         }
 
-        // Wait for the rest of animation
         await new Promise(resolve => setTimeout(resolve, 500));
         
         alert('✅ Заказ отмечен как готовый!');
@@ -1219,7 +1185,6 @@ async function deleteOrder(orderId) {
             return;
         }
         
-        // Remove order from DOM immediately
         const orderElement = document.querySelector(`[data-order-id="${id}"]`)?.closest('.order-container');
         if (orderElement) {
             orderElement.style.transition = 'opacity 0.3s';

@@ -32,19 +32,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
 static_dir = Path(__file__).parent / "static"
 if static_dir.exists():
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
-# Include routers
 app.include_router(auth_router)
 app.include_router(menu_router)
 app.include_router(tables_router)
 app.include_router(orders_router)
 app.include_router(employees_router)
-
-# ==================== SQLAdmin Configuration ====================
 
 class UserAdmin(ModelView, model=User):
     """Админ-панель для пользователей"""
@@ -67,16 +63,13 @@ class TableAdmin(ModelView, model=Table):
     name_plural = "Столы"
     icon = "fa-solid fa-chair"
 
-# Регистрируем админ-панель
 admin = Admin(app, engine, title="🍽️ Platter Flow Admin", authentication_backend=None)
 
 admin.add_model_view(UserAdmin)
 admin.add_model_view(MenuItemAdmin)
 admin.add_model_view(TableAdmin)
 
-# ==================== Routes ====================
 
-# Root route - serve the HTML interface
 @app.get("/")
 def root():
     """Serve the main HTML interface"""

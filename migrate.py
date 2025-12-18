@@ -1,10 +1,8 @@
-#!/usr/bin/env python
 """Database migration script using Alembic"""
 import os
 import sys
 from pathlib import Path
 
-# Add project root to path
 project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
 
@@ -16,7 +14,6 @@ from app.config import settings
 def run_migrations(command_name='upgrade'):
     """Execute Alembic migrations"""
     
-    # Get Alembic config
     alembic_cfg = Config('alembic.ini')
     alembic_cfg.set_main_option('sqlalchemy.url', settings.DATABASE_URL)
     
