@@ -120,7 +120,7 @@ async function handleLogin() {
                 
                 handleTabSwitch(ordersMenuBtn);
             } else if (data.role === 'waiter') {
-                console.log('👔 ОФИЦиАНТ вошёл');
+                console.log('👔 ОФИЦИАНТ вошёл');
                 if (menuBtn) menuBtn.classList.remove('hidden');
                 if (ordersMenuBtn) ordersMenuBtn.classList.add('hidden');
                 if (tablesStatusBtn) tablesStatusBtn.classList.remove('hidden');
@@ -235,7 +235,7 @@ async function checkForReadyOrders() {
                 // Check if we already notified about this order
                 if (!waiterNotifications.includes(order.id)) {
                     waiterNotifications.push(order.id);
-                    showWaiterNotification(`🝴 Заказ #${order.id} готов! (Стол №${order.table_id})`, order.id);
+                    showWaiterNotification(`🍽️ Заказ #${order.id} готов! (Стол №${order.table_id})`, order.id);
                 }
             }
         });
@@ -484,13 +484,24 @@ async function loadMenuForManagement() {
                 const itemEl = document.createElement('div');
                 itemEl.className = 'item';
                 itemEl.setAttribute('data-menu-item-id', item.id);
+                
+                const btnElement = document.createElement('button');
+                btnElement.className = 'btn btn-danger';
+                btnElement.style.cssText = 'width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;';
+                btnElement.innerHTML = '🗑️ Удалить';
+                btnElement.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    deleteMenuItem(item.id);
+                };
+                
                 itemEl.innerHTML = `
                     <div class="name">${item.name}</div>
                     <div class="desc">${item.description || 'Без описания'}</div>
                     <div class="meta">₽${item.price.toFixed(2)}</div>
                     <small style="color: #999; display: block; margin-bottom: 10px;">${item.category}</small>
-                    <button class="btn btn-danger" style="width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;" onclick="deleteMenuItem(${item.id})">🗑️ Удалить</button>
                 `;
+                itemEl.appendChild(btnElement);
                 menuManageContent.appendChild(itemEl);
             });
         }
@@ -638,12 +649,23 @@ async function loadTablesForManagement() {
                 tableEl.className = 'item';
                 tableEl.setAttribute('data-table-id', table.id);
                 tableEl.style.borderTop = table.is_occupied ? '4px solid #e74c3c' : '4px solid #2ecc71';
+                
+                const btnElement = document.createElement('button');
+                btnElement.className = 'btn btn-danger';
+                btnElement.style.cssText = 'width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;';
+                btnElement.innerHTML = '🗑️ Удалить';
+                btnElement.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    deleteTable(table.id);
+                };
+                
                 tableEl.innerHTML = `
                     <div class="name">Стол №${table.table_number}</div>
                     <div class="desc">Мест: ${table.seats}</div>
                     <div class="meta" style="color: ${table.is_occupied ? '#e74c3c' : '#2ecc71'};">${table.is_occupied ? '🔴 Занят' : '🟢 Свободен'}</div>
-                    <button class="btn btn-danger" style="width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;" onclick="deleteTable(${table.id})">🗑️ Удалить</button>
                 `;
+                tableEl.appendChild(btnElement);
                 tablesManageContent.appendChild(tableEl);
             });
         }
@@ -747,7 +769,7 @@ async function loadEmployees() {
         const response = await fetch(`${API_URL}/api/employees/`);
         
         if (!response.ok) {
-            throw new Error(`Ошибка загружки сотрудников: ${response.status}`);
+            throw new Error(`Ошибка загужки сотрудников: ${response.status}`);
         }
         
         const employees = await response.json();
@@ -1033,39 +1055,54 @@ async function loadOrders() {
             if (currentUser && (currentUser.role === 'chef' || currentUser.role === 'admin')) {
                 // ONLY SHOW "MARK READY" BUTTON for pending/confirmed - NOT for ready/completed
                 if (order.status === 'pending' || order.status === 'confirmed') {
-                    frontHtml += `
-                        <div style="display: flex; gap: 8px; margin-top: 10px;">
-                            <button 
-                                class="btn btn-primary order-ready-btn" 
-                                style="flex: 1; font-size: 12px; padding: 8px;"
-                                data-order-id="${order.id}"
-                            >
-                                🟢 Заказ готов
-                            </button>
-                            <button 
-                                class="btn btn-danger order-delete-btn" 
-                                style="width: 40px; font-size: 12px; padding: 8px;"
-                                data-order-id="${order.id}"
-                            >
-                                🗑️
-                            </button>
-                        </div>
-                    `;
+                    const readyBtn = document.createElement('button');
+                    readyBtn.className = 'btn btn-primary order-ready-btn';
+                    readyBtn.style.cssText = 'flex: 1; font-size: 12px; padding: 8px; margin-right: 8px;';
+                    readyBtn.setAttribute('data-order-id', order.id);
+                    readyBtn.innerHTML = '🟢 Заказ готов';
+                    readyBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        markOrderReady(order.id);
+                    };
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-danger order-delete-btn';
+                    deleteBtn.style.cssText = 'width: 40px; font-size: 12px; padding: 8px;';
+                    deleteBtn.setAttribute('data-order-id', order.id);
+                    deleteBtn.innerHTML = '🗑️';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteOrder(order.id);
+                    };
+                    
+                    const btnContainer = document.createElement('div');
+                    btnContainer.style.display = 'flex';
+                    btnContainer.style.gap = '8px';
+                    btnContainer.style.marginTop = '10px';
+                    btnContainer.appendChild(readyBtn);
+                    btnContainer.appendChild(deleteBtn);
+                    
+                    frontFace.innerHTML = frontHtml;
+                    frontFace.appendChild(btnContainer);
                 }
                 // Show delete button for other statuses
                 else {
-                    frontHtml += `
-                        <button 
-                            class="btn btn-danger order-delete-btn" 
-                            style="width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;"
-                            data-order-id="${order.id}"
-                        >
-                            🗑️ Удалить заказ
-                        </button>
-                    `;
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-danger order-delete-btn';
+                    deleteBtn.style.cssText = 'width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;';
+                    deleteBtn.setAttribute('data-order-id', order.id);
+                    deleteBtn.innerHTML = '🗑️ Удалить заказ';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteOrder(order.id);
+                    };
+                    
+                    frontFace.innerHTML = frontHtml;
+                    frontFace.appendChild(deleteBtn);
                 }
+            } else {
+                frontFace.innerHTML = frontHtml;
             }
-            frontFace.innerHTML = frontHtml;
             
             // Back side (green success state)
             const backFace = document.createElement('div');
@@ -1089,25 +1126,6 @@ async function loadOrders() {
             
             container.appendChild(orderEl);
             ordersList.appendChild(container);
-        });
-        
-        // Add event listeners to all order buttons
-        document.querySelectorAll('.order-ready-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const orderId = parseInt(btn.getAttribute('data-order-id'));
-                console.log('👨‍🍳 ПОВАР отмечает заказ #' + orderId + ' как готов');
-                markOrderReady(orderId);
-            });
-        });
-        
-        document.querySelectorAll('.order-delete-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const orderId = parseInt(btn.getAttribute('data-order-id'));
-                console.log('👨‍🍳 ПОВАР удаляет заказ #' + orderId);
-                deleteOrder(orderId);
-            });
         });
         
         document.getElementById('statActive').textContent = active;
