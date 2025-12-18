@@ -187,7 +187,7 @@ function handleTabSwitch(btn) {
     }
 }
 
-// WAITER: Table Status Management
+// WAITER: Table Status Management with 3D Flip Animation
 async function loadTablesForStatus() {
     try {
         const response = await fetch(`${API_URL}/api/tables/`);
@@ -202,10 +202,17 @@ async function loadTablesForStatus() {
         }
         
         tables.forEach(table => {
+            const container = document.createElement('div');
+            container.className = 'table-card-container';
+            
             const tableCard = document.createElement('div');
             tableCard.className = `table-card ${table.is_occupied ? 'occupied' : 'free'}`;
+            tableCard.setAttribute('data-table-id', table.id);
             
-            tableCard.innerHTML = `
+            // Front side
+            const frontFace = document.createElement('div');
+            frontFace.className = 'table-card-front';
+            frontFace.innerHTML = `
                 <div class="number">#${table.table_number}</div>
                 <div class="seats">${table.seats} мест</div>
                 <button class="btn ${table.is_occupied ? 'btn-success' : 'btn-danger'}" 
@@ -215,7 +222,23 @@ async function loadTablesForStatus() {
                 </button>
             `;
             
-            tablesStatusContent.appendChild(tableCard);
+            // Back side
+            const backFace = document.createElement('div');
+            backFace.className = 'table-card-back';
+            backFace.innerHTML = `
+                <div class="number">#${table.table_number}</div>
+                <div class="seats">${table.seats} мест</div>
+                <button class="btn" 
+                        style="width: 100%; font-size: 13px; padding: 8px;" 
+                        onclick="toggleTableStatus(${table.id}, ${!table.is_occupied})">
+                    ${table.is_occupied ? '🟢 Освободить' : '🔴 Занять'}
+                </button>
+            `;
+            
+            tableCard.appendChild(frontFace);
+            tableCard.appendChild(backFace);
+            container.appendChild(tableCard);
+            tablesStatusContent.appendChild(container);
         });
     } catch (error) {
         console.error('Ошибка загрузки столов:', error);
@@ -224,6 +247,17 @@ async function loadTablesForStatus() {
 
 async function toggleTableStatus(tableId, isOccupied) {
     try {
+        // Find the card element
+        const card = document.querySelector(`[data-table-id="${tableId}"]`);
+        
+        if (card) {
+            // Add flip animation
+            card.classList.add('flipping');
+            
+            // Wait for animation to reach halfway (300ms of 600ms)
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        
         const response = await fetch(`${API_URL}/api/tables/${tableId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -232,10 +266,16 @@ async function toggleTableStatus(tableId, isOccupied) {
 
         if (!response.ok) throw new Error('Ошибка обновления статуса стола');
         
+        // Wait for the rest of animation
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Reload tables to show updated state
         loadTablesForStatus();
     } catch (error) {
         console.error('Ошибка изменения статуса стола:', error);
         alert('❌ Ошибка: ' + error.message);
+        // Reload on error
+        loadTablesForStatus();
     }
 }
 
