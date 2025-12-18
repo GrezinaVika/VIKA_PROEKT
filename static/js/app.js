@@ -931,14 +931,14 @@ async function loadOrders() {
                             <button 
                                 class="btn btn-primary" 
                                 style="flex: 1; font-size: 12px; padding: 8px;"
-                                onclick="markOrderReady(${order.id})"
+                                onclick="event.stopPropagation(); markOrderReady(${order.id})"
                             >
                                 🟢 Заказ готов
                             </button>
                             <button 
                                 class="btn btn-danger" 
                                 style="width: 40px; font-size: 12px; padding: 8px;"
-                                onclick="deleteOrder(${order.id})"
+                                onclick="event.stopPropagation(); deleteOrder(${order.id})"
                             >
                                 🗑️
                             </button>
@@ -951,7 +951,7 @@ async function loadOrders() {
                         <button 
                             class="btn btn-danger" 
                             style="width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;"
-                            onclick="deleteOrder(${order.id})"
+                            onclick="event.stopPropagation(); deleteOrder(${order.id})"
                         >
                             🗑️ Удалить заказ
                         </button>
@@ -973,7 +973,7 @@ async function loadOrders() {
             orderEl.appendChild(frontFace);
             orderEl.appendChild(backFace);
             
-            // Add click to view details (only on front)
+            // Add click to view details (only on front, not on buttons)
             frontFace.addEventListener('click', (e) => {
                 if (e.target.tagName !== 'BUTTON') {
                     showOrderDetails(order);
