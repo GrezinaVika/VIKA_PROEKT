@@ -929,16 +929,16 @@ async function loadOrders() {
                     frontHtml += `
                         <div style="display: flex; gap: 8px; margin-top: 10px;">
                             <button 
-                                class="btn btn-primary" 
+                                class="btn btn-primary order-ready-btn" 
                                 style="flex: 1; font-size: 12px; padding: 8px;"
-                                onclick="event.stopPropagation(); markOrderReady(${order.id})"
+                                data-order-id="${order.id}"
                             >
                                 🟢 Заказ готов
                             </button>
                             <button 
-                                class="btn btn-danger" 
+                                class="btn btn-danger order-delete-btn" 
                                 style="width: 40px; font-size: 12px; padding: 8px;"
-                                onclick="event.stopPropagation(); deleteOrder(${order.id})"
+                                data-order-id="${order.id}"
                             >
                                 🗑️
                             </button>
@@ -949,9 +949,9 @@ async function loadOrders() {
                 else if (order.status === 'ready' || order.status === 'completed') {
                     frontHtml += `
                         <button 
-                            class="btn btn-danger" 
+                            class="btn btn-danger order-delete-btn" 
                             style="width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;"
-                            onclick="event.stopPropagation(); deleteOrder(${order.id})"
+                            data-order-id="${order.id}"
                         >
                             🗑️ Удалить заказ
                         </button>
@@ -975,13 +975,30 @@ async function loadOrders() {
             
             // Add click to view details (only on front, not on buttons)
             frontFace.addEventListener('click', (e) => {
-                if (e.target.tagName !== 'BUTTON') {
+                if (!e.target.classList.contains('btn')) {
                     showOrderDetails(order);
                 }
             });
             
             container.appendChild(orderEl);
             ordersList.appendChild(container);
+        });
+        
+        // Add event listeners to all order buttons
+        document.querySelectorAll('.order-ready-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const orderId = parseInt(btn.getAttribute('data-order-id'));
+                markOrderReady(orderId);
+            });
+        });
+        
+        document.querySelectorAll('.order-delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const orderId = parseInt(btn.getAttribute('data-order-id'));
+                deleteOrder(orderId);
+            });
         });
         
         document.getElementById('statActive').textContent = active;
