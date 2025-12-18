@@ -4,7 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
+from sqlalchemy import create_engine
+from sqladmin import Admin, ModelView
+
 from app.database.core import Base, engine
+from app.database.models import User, MenuItem, Table, Order, OrderItem
 
 # Import all routers
 from app.api.auth import router as auth_router
@@ -43,6 +47,54 @@ app.include_router(menu_router)
 app.include_router(tables_router)
 app.include_router(orders_router)
 app.include_router(employees_router)
+
+# ==================== SQLAdmin Configuration ====================
+
+class UserAdmin(ModelView, model=User):
+    """Админ-панель для пользователей"""
+    column_list = [User.id, User.username, User.full_name, User.role]
+    name = "Сотрудник"
+    name_plural = "Сотрудники"
+    icon = "fa-solid fa-user"
+
+class MenuItemAdmin(ModelView, model=MenuItem):
+    """Админ-панель для меню"""
+    column_list = [MenuItem.id, MenuItem.name, MenuItem.description, MenuItem.price, MenuItem.category]
+    name = "Блюдо"
+    name_plural = "Меню"
+    icon = "fa-solid fa-utensils"
+
+class TableAdmin(ModelView, model=Table):
+    """Админ-панель для столов"""
+    column_list = [Table.id, Table.table_number, Table.seats, Table.is_occupied]
+    name = "Стол"
+    name_plural = "Столы"
+    icon = "fa-solid fa-chair"
+
+class OrderAdmin(ModelView, model=Order):
+    """Админ-панель для заказов"""
+    column_list = [Order.id, Order.table_id, Order.status, Order.total_price, Order.created_at]
+    name = "Заказ"
+    name_plural = "Заказы"
+    icon = "fa-solid fa-clipboard-list"
+
+class OrderItemAdmin(ModelView, model=OrderItem):
+    """Админ-панель для позиций заказа"""
+    column_list = [OrderItem.id, OrderItem.order_id, OrderItem.menu_item_id, OrderItem.quantity]
+    name = "Позиция заказа"
+    name_plural = "Позиции заказа"
+    icon = "fa-solid fa-list"
+
+# Регистрируем админ-панель
+admin = Admin(app, engine, title="🍽️ Platter Flow Admin", authentication_backend=None)
+
+admin.add_model_view(UserAdmin)
+admin.add_model_view(MenuItemAdmin)
+admin.add_model_view(TableAdmin)
+admin.add_model_view(OrderAdmin)
+admin.add_model_view(OrderItemAdmin)
+
+# ==================== Routes ====================
 
 # Root route - serve the HTML interface
 @app.get("/")
