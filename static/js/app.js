@@ -887,7 +887,7 @@ async function createOrder() {
     }
 }
 
-// Orders
+// CHEF: Orders with 3D Flip Animation
 async function loadOrders() {
     try {
         const response = await fetch(`${API_URL}/api/orders/`);
@@ -907,10 +907,17 @@ async function loadOrders() {
                 active++;
             }
             
+            const container = document.createElement('div');
+            container.className = 'order-container';
+            
             const orderEl = document.createElement('div');
             orderEl.className = 'order';
+            orderEl.setAttribute('data-order-id', order.id);
             
-            let html = `
+            // Front side
+            const frontFace = document.createElement('div');
+            frontFace.className = 'order-front';
+            let frontHtml = `
                 <div class="name">Заказ #${order.id} - Стол №${order.table_id}</div>
                 <div class="meta">Статус: <strong>${getStatusText(order.status)}</strong></div>
                 <div class="meta">Сумма: ₽${order.total_price.toFixed(2)}</div>
@@ -918,7 +925,7 @@ async function loadOrders() {
             
             if (currentUser && (currentUser.role === 'chef' || currentUser.role === 'admin')) {
                 if (order.status === 'pending' || order.status === 'confirmed') {
-                    html += `
+                    frontHtml += `
                         <button 
                             class="btn btn-primary" 
                             style="width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;"
@@ -929,11 +936,30 @@ async function loadOrders() {
                     `;
                 }
             }
+            frontFace.innerHTML = frontHtml;
             
-            orderEl.innerHTML = html;
-            orderEl.style.cursor = 'pointer';
-            orderEl.addEventListener('click', () => showOrderDetails(order));
-            ordersList.appendChild(orderEl);
+            // Back side (green success state)
+            const backFace = document.createElement('div');
+            backFace.className = 'order-back';
+            backFace.innerHTML = `
+                <div class="name">✅ Заказ #${order.id} готов!</div>
+                <div class="meta">Стол №${order.table_id}</div>
+                <div class="meta">Сумма: ₽${order.total_price.toFixed(2)}</div>
+                <div style="margin-top: 10px; font-size: 18px; font-weight: bold;">🍴 Можно подавать!</div>
+            `;
+            
+            orderEl.appendChild(frontFace);
+            orderEl.appendChild(backFace);
+            
+            // Add click to view details (only on front)
+            frontFace.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') {
+                    showOrderDetails(order);
+                }
+            });
+            
+            container.appendChild(orderEl);
+            ordersList.appendChild(container);
         });
         
         document.getElementById('statActive').textContent = active;
@@ -945,6 +971,17 @@ async function loadOrders() {
 
 async function markOrderReady(orderId) {
     try {
+        // Find the order element
+        const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+        
+        if (orderCard) {
+            // Add flip animation
+            orderCard.classList.add('flipping');
+            
+            // Wait for animation to reach halfway (300ms of 600ms)
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        
         const response = await fetch(`${API_URL}/api/orders/${orderId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -955,11 +992,15 @@ async function markOrderReady(orderId) {
             throw new Error('Ошибка при обновлении статуса заказа');
         }
 
+        // Wait for the rest of animation
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
         alert('✅ Заказ отмечен как готовый!');
         loadOrders();
     } catch (error) {
         console.error('Ошибка обновления заказа:', error);
         alert('❌ Ошибка: ' + error.message);
+        loadOrders();
     }
 }
 
