@@ -62,42 +62,6 @@
             font-size: 28px;
         }
 
-        .test-credentials {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 380px;
-            padding: 30px;
-        }
-
-        .test-credentials h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 18px;
-            text-align: center;
-        }
-
-        .test-user {
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #f9f9f9;
-            border-left: 4px solid #667eea;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-
-        .test-user h4 {
-            color: #667eea;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .test-user p {
-            margin: 4px 0;
-            color: #666;
-        }
-
         .form-group {
             margin-bottom: 20px;
         }
@@ -758,7 +722,7 @@
     <div id="authSection">
         <div class="auth-container">
             <div class="auth-card">
-                <h2 id="authTitle">Вход</h2>
+                <h2 id="authTitle">🔐 Вход</h2>
                 <div class="info-box">
                     <strong>Информация:</strong> Роль привязана к аккаунту. При входе вы получите соответствующие права.
                 </div>
@@ -784,28 +748,9 @@
                             <option value="admin">Администратор</option>
                         </select>
                     </div>
-                    <button type="button" class="btn btn-primary" id="doLogin">Вход</button>
+                    <button type="button" class="btn btn-primary" id="doLogin">🔐 Вход</button>
                 </form>
                 <button type="button" class="btn btn-link" id="toggleAuthBtn" onclick="toggleAuthMode()">Создать аккаунт</button>
-            </div>
-
-            <div class="test-credentials">
-                <h3>Тестовые данные</h3>
-                <div class="test-user">
-                    <h4>Шеф-повар</h4>
-                    <p>Логин: <strong>chefNum1</strong></p>
-                    <p>Пароль: <strong>chef123</strong></p>
-                </div>
-                <div class="test-user">
-                    <h4>Официант</h4>
-                    <p>Логин: <strong>waiterNum1</strong></p>
-                    <p>Пароль: <strong>waiter123</strong></p>
-                </div>
-                <div class="test-user">
-                    <h4>Администратор</h4>
-                    <p>Логин: <strong>adminNum1</strong></p>
-                    <p>Пароль: <strong>admin123</strong></p>
-                </div>
             </div>
         </div>
     </div>
@@ -813,7 +758,7 @@
     <!-- APP SECTION -->
     <div id="appSection" class="hidden">
         <div class="app-header">
-            <h1>Platter Flow</h1>
+            <h1>🍽️ Platter Flow</h1>
             <div class="header-right">
                 <div id="accountInfo">
                     <h3 id="userName">Пользователь</h3>
@@ -824,13 +769,13 @@
         </div>
         <div class="app-body">
             <div class="sidebar">
-                <button class="menu-btn active" data-tab="menuTab" id="menuBtn">Меню</button>
-                <button class="menu-btn hidden" id="ordersMenuBtn" data-tab="ordersTab">Заказы</button>
-                <button class="menu-btn hidden" id="cartMenuBtn" data-tab="cartTab" style="position: relative;">Мой заказ <span id="cartBadge" class="hidden">0</span></button>
-                <button class="menu-btn hidden" id="tablesStatusBtn" data-tab="tablesStatusTab">Статус столов</button>
-                <button class="menu-btn hidden" id="employeesMenuBtn" data-tab="employeesTab">Сотрудники</button>
-                <button class="menu-btn hidden" id="tablesManageBtn" data-tab="tablesManageTab">Управление столами</button>
-                <button class="menu-btn hidden" id="menuManageBtn" data-tab="menuManageTab">Управление меню</button>
+                <button class="menu-btn active" data-tab="menuTab" id="menuBtn">📋 Меню</button>
+                <button class="menu-btn hidden" id="ordersMenuBtn" data-tab="ordersTab">📦 Заказы</button>
+                <button class="menu-btn hidden" id="cartMenuBtn" data-tab="cartTab" style="position: relative;">🛒 Мой заказ <span id="cartBadge" class="hidden">0</span></button>
+                <button class="menu-btn hidden" id="tablesStatusBtn" data-tab="tablesStatusTab">📊 Статус столов</button>
+                <button class="menu-btn hidden" id="employeesMenuBtn" data-tab="employeesTab">👥 Сотрудники</button>
+                <button class="menu-btn hidden" id="tablesManageBtn" data-tab="tablesManageTab">🪑 Управление столами</button>
+                <button class="menu-btn hidden" id="menuManageBtn" data-tab="menuManageTab">🍽️ Управление меню</button>
             </div>
             <div class="main-content">
                 <div class="stats-grid">
@@ -852,23 +797,23 @@
                     </div>
                 </div>
                 <div class="tabpane" id="menuTab">
-                    <h2>Меню</h2>
+                    <h2>📋 Меню</h2>
                     <div class="items-grid" id="menuContent"></div>
                 </div>
                 <div class="tabpane hidden" id="ordersTab">
-                    <h2>Заказы</h2>
+                    <h2>📦 Заказы</h2>
                     <div class="orders-list" id="ordersList"></div>
                 </div>
                 <div class="tabpane hidden" id="cartTab">
-                    <h2>Мой заказ</h2>
+                    <h2>🛒 Мой заказ</h2>
                     <div id="cartContent"></div>
                 </div>
                 <div class="tabpane hidden" id="tablesStatusTab">
-                    <h2>Статус столов</h2>
+                    <h2>📊 Статус столов</h2>
                     <div class="tables-grid" id="tablesStatusContent"></div>
                 </div>
                 <div class="tabpane hidden" id="employeesTab">
-                    <h2>Сотрудники</h2>
+                    <h2>👥 Сотрудники</h2>
                     <div class="employees-container">
                         <div class="employees-header">
                             <h3 style="margin: 0;">Список сотрудников</h3>
@@ -889,14 +834,14 @@
                     </div>
                 </div>
                 <div class="tabpane hidden" id="tablesManageTab">
-                    <h2>Управление столами</h2>
+                    <h2>🪑 Управление столами</h2>
                     <div style="margin-bottom: 20px;">
                         <button class="btn btn-primary" style="width: auto; padding: 12px 24px;" onclick="openAddTableModal()">Добавить стол</button>
                     </div>
                     <div class="items-grid" id="tablesManageContent"></div>
                 </div>
                 <div class="tabpane hidden" id="menuManageTab">
-                    <h2>Управление меню</h2>
+                    <h2>🍽️ Управление меню</h2>
                     <div style="margin-bottom: 20px;">
                         <button class="btn btn-primary" style="width: auto; padding: 12px 24px;" onclick="openAddMenuItemModal()">Добавить блюдо</button>
                     </div>
@@ -1024,6 +969,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=3.2.0"></script>
+    <script src="/static/js/app.js?v=3.3.0"></script>
 </body>
 </html>
