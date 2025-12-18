@@ -48,10 +48,15 @@ def update_menu_item(item_id: int, item_data: MenuItemUpdate, db: Session = Depe
 @router.delete("/{item_id}")
 def delete_menu_item(item_id: int, db: Session = Depends(get_db)):
     """Delete menu item"""
-    item = db.query(MenuItem).filter(MenuItem.id == item_id).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Menu item not found")
-    
-    db.delete(item)
-    db.commit()
-    return {"message": "Menu item deleted successfully"}
+    try:
+        item = db.query(MenuItem).filter(MenuItem.id == item_id).first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Menu item not found")
+        
+        db.delete(item)
+        db.commit()
+        return {"message": "Menu item deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        print(f"Error deleting menu item: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error deleting menu item: {str(e)}")
