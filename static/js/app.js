@@ -927,8 +927,9 @@ async function loadOrders() {
                         </div>
                     `;
                 }
-                // Show delete button for all other statuses (ready, completed)
-                else if (order.status === 'ready' || order.status === 'completed') {
+                // FIX: Show delete button for ALL statuses including pending/confirmed
+                // Previously it only showed for ready/completed
+                else {
                     frontHtml += `
                         <button 
                             class="btn btn-danger order-delete-btn" 
