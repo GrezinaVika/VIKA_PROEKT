@@ -601,12 +601,17 @@ async function deleteMenuItem(itemId) {
         
         const itemElement = document.querySelector(`[data-menu-item-id="${id}"]`);
         if (itemElement) {
-            itemElement.remove();
+            itemElement.style.transition = 'opacity 0.3s';
+            itemElement.style.opacity = '0';
+            setTimeout(() => {
+                if (itemElement.parentElement) {
+                    itemElement.remove();
+                }
+            }, 300);
         }
         
         console.log('✅ Блюдо удалено успешно');
         alert('✅ Блюдо удалено из меню');
-        loadMenuForManagement();
         loadMenuItems();
     } catch (error) {
         console.error('Ошибка удаления блюда:', error);
@@ -749,16 +754,20 @@ async function deleteTable(tableId) {
         
         const tableElement = document.querySelector(`[data-table-id="${id}"]`);
         if (tableElement) {
-            tableElement.remove();
+            tableElement.style.transition = 'opacity 0.3s';
+            tableElement.style.opacity = '0';
+            setTimeout(() => {
+                if (tableElement.parentElement) {
+                    tableElement.remove();
+                }
+            }, 300);
         }
         
         console.log('✅ Стол удалён успешно');
         alert('✅ Стол удален');
-        loadTablesForManagement();
     } catch (error) {
         console.error('Ошибка удаления стола:', error);
         alert('❌ Ошибка сети: ' + error.message);
-        loadTablesForManagement();
     }
 }
 
@@ -1201,12 +1210,17 @@ async function deleteOrder(orderId) {
         // Remove order from DOM immediately
         const orderElement = document.querySelector(`[data-order-id="${id}"]`)?.closest('.order-container');
         if (orderElement) {
-            orderElement.remove();
+            orderElement.style.transition = 'opacity 0.3s';
+            orderElement.style.opacity = '0';
+            setTimeout(() => {
+                if (orderElement.parentElement) {
+                    orderElement.remove();
+                }
+            }, 300);
         }
         
         console.log('✅ Заказ удалён успешно');
         alert('✅ Заказ удален');
-        loadOrders();
     } catch (error) {
         console.error('Ошибка удаления заказа:', error);
         alert('❌ Ошибка сети: ' + error.message);
