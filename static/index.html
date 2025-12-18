@@ -413,22 +413,63 @@
             margin-bottom: 12px;
         }
 
+        /* 3D FLIP ANIMATION FOR ORDERS */
         .orders-list {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
 
+        .order-container {
+            perspective: 1000px;
+            min-height: 120px;
+        }
+
         .order {
-            background: white;
+            width: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .order.flipping {
+            transform: rotateY(180deg);
+        }
+
+        .order-front,
+        .order-back {
+            width: 100%;
+            backface-visibility: hidden;
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s;
         }
 
-        .order:hover {
+        .order-front {
+            background: white;
+        }
+
+        .order-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+
+        .order-back .name,
+        .order-back .meta {
+            color: white;
+        }
+
+        .order-back .meta strong {
+            color: white;
+        }
+
+        .order:not(.flipping):hover .order-front {
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             transform: translateX(5px);
         }
@@ -983,6 +1024,6 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=2.9.0"></script>
+    <script src="/static/js/app.js?v=3.0.0"></script>
 </body>
 </html>
