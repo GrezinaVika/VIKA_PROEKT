@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.schemes.table import TableCreate, TableUpdate, TableResponse
 from app.models.table import RestaurantTable
+from app.models.order import Order
 from app.database.core import get_db
 
 router = APIRouter(prefix="/api/tables", tags=["tables"])
@@ -53,15 +54,22 @@ def update_table(table_id: int, table_data: TableUpdate, db: Session = Depends(g
 
 @router.delete("/{table_id}")
 def delete_table(table_id: int, db: Session = Depends(get_db)):
-    """Delete table"""
+    """Delete table and all associated orders"""
     try:
         table = db.query(RestaurantTable).filter(RestaurantTable.id == table_id).first()
         if not table:
             raise HTTPException(status_code=404, detail="Table not found")
         
+        # Delete all orders associated with this table
+        orders = db.query(Order).filter(Order.table_id == table_id).all()
+        for order in orders:
+            db.delete(order)
+        
+        # Delete the table
         db.delete(table)
         db.commit()
-        return {"message": "Table deleted successfully"}
+        
+        return {"message": f"Table deleted successfully (deleted {len(orders)} associated orders)"}
     except Exception as e:
         db.rollback()
         print(f"Error deleting table: {str(e)}")
