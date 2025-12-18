@@ -26,18 +26,21 @@ function toggleAuthMode() {
     isLoginMode = !isLoginMode;
     const form = document.getElementById('authForm');
     const title = document.querySelector('.auth-card h2');
+    const nameGroup = document.getElementById('nameGroup');
     const roleGroup = document.getElementById('roleGroup');
     const toggleBtn = document.getElementById('toggleAuthBtn');
     const submitBtn = document.getElementById('doLogin');
     
     if (isLoginMode) {
         title.textContent = '🔐 Вход';
+        nameGroup.classList.add('hidden');
         roleGroup.classList.add('hidden');
         toggleBtn.textContent = 'Создать аккаунт';
         submitBtn.textContent = '🔐 Вход';
         document.getElementById('loginUser').placeholder = 'Введите логин';
     } else {
         title.textContent = '📝 Регистрация';
+        nameGroup.classList.remove('hidden');
         roleGroup.classList.remove('hidden');
         toggleBtn.textContent = 'Уже есть аккаунт? Войти';
         submitBtn.textContent = '✅ Зарегистрироваться';
@@ -171,6 +174,7 @@ function handleLogout() {
     document.getElementById('authForm').reset();
     isLoginMode = true;
     document.querySelector('.auth-card h2').textContent = '🔐 Вход';
+    document.getElementById('nameGroup').classList.add('hidden');
     document.getElementById('roleGroup').classList.add('hidden');
     document.getElementById('doLogin').textContent = '🔐 Вход';
 }
@@ -337,7 +341,7 @@ async function loadMenuItems() {
         document.getElementById('statOrders').textContent = items.length;
     } catch (error) {
         console.error('Ошибка загрузки меню:', error);
-        document.getElementById('menuContent').innerHTML = '<p style="color: red;">❌ Ошибка загружки меню</p>';
+        document.getElementById('menuContent').innerHTML = '<p style="color: red;">❌ Ошибка загужки меню</p>';
     }
 }
 
