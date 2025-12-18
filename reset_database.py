@@ -15,8 +15,9 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
-# Import models
-from app.database.core import Base, SQLALCHEMY_DATABASE_URL
+# Import models and config
+from app.database.core import Base
+from app.config import settings
 from app.models.user import User
 from app.models.menu import MenuItem
 from app.models.table import RestaurantTable
@@ -44,8 +45,8 @@ def reset_database():
     print("="*60)
     
     # Extract database file path from URL
-    # SQLite URL is like: sqlite:///./test.db
-    db_path = SQLALCHEMY_DATABASE_URL.split("///")[-1]
+    # SQLite URL is like: sqlite:///restaurant.db
+    db_path = settings.DATABASE_URL.replace("sqlite:///", "")
     
     # Delete old database file if it exists
     if os.path.exists(db_path):
@@ -57,7 +58,7 @@ def reset_database():
             print(f"   ⚠️  Could not delete: {str(e)}")
     
     # Create engine with foreign keys enabled
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False)
+    engine = create_engine(settings.DATABASE_URL, echo=False)
     
     # Enable foreign key constraints
     event.listen(Engine, "connect", enable_foreign_keys)
