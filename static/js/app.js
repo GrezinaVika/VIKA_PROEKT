@@ -453,8 +453,17 @@ async function deleteMenuItem(itemId) {
         console.log('📥 Ответ сервера:', response.status, response.statusText);
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Ошибка удаления');
+            let errorMessage = 'Ошибка удаления';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.detail || errorMessage;
+            } catch (e) {
+                // If response is not JSON, use status text
+                errorMessage = response.statusText || errorMessage;
+            }
+            console.error('❌ Ошибка сервера:', errorMessage);
+            alert('❌ Ошибка сервера: ' + errorMessage);
+            return;
         }
         
         // Remove item from DOM immediately
@@ -469,7 +478,7 @@ async function deleteMenuItem(itemId) {
         loadMenuItems(); // Update menu for waiter
     } catch (error) {
         console.error('Ошибка удаления блюда:', error);
-        alert('❌ Ошибка: ' + error.message);
+        alert('❌ Ошибка сети: ' + error.message);
         loadMenuForManagement();
     }
 }
@@ -594,8 +603,17 @@ async function deleteTable(tableId) {
         console.log('📥 Ответ сервера:', response.status, response.statusText);
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Ошибка удаления');
+            let errorMessage = 'Ошибка удаления';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.detail || errorMessage;
+            } catch (e) {
+                // If response is not JSON, use status text
+                errorMessage = response.statusText || errorMessage;
+            }
+            console.error('❌ Ошибка сервера:', errorMessage);
+            alert('❌ Ошибка сервера: ' + errorMessage);
+            return;
         }
         
         // Remove item from DOM immediately
@@ -609,7 +627,7 @@ async function deleteTable(tableId) {
         loadTablesForManagement();
     } catch (error) {
         console.error('Ошибка удаления стола:', error);
-        alert('❌ Ошибка: ' + error.message);
+        alert('❌ Ошибка сети: ' + error.message);
         // Reload on error
         loadTablesForManagement();
     }
@@ -1044,8 +1062,16 @@ async function deleteOrder(orderId) {
         console.log('📥 Ответ сервера:', response.status, response.statusText);
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Ошибка при удалении заказа');
+            let errorMessage = 'Ошибка при удалении заказа';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.detail || errorMessage;
+            } catch (e) {
+                errorMessage = response.statusText || errorMessage;
+            }
+            console.error('❌ Ошибка сервера:', errorMessage);
+            alert('❌ Ошибка сервера: ' + errorMessage);
+            return;
         }
         
         // Remove order from DOM immediately
@@ -1059,7 +1085,7 @@ async function deleteOrder(orderId) {
         loadOrders();
     } catch (error) {
         console.error('Ошибка удаления заказа:', error);
-        alert('❌ Ошибка: ' + error.message);
+        alert('❌ Ошибка сети: ' + error.message);
         // Reload on error
         loadOrders();
     }
